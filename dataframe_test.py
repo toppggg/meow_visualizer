@@ -22,7 +22,7 @@ df.loc['event_type1'] = new_row
 df.loc['event_type2'] = new_row
 df.loc['event_type3'] = new_row
 
-df.loc['event_type1'][57] = 3
+# df.loc['event_type1'][57] = 3
 for i in range(0,60):
     df.loc['event_type1'][i] = random.randint(0,10)
     df.loc['event_type2'][i] = random.randint(0,10)
