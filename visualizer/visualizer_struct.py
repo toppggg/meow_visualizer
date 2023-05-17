@@ -8,6 +8,6 @@ class VISUALIZER_STRUCT:
     current_state : str = ""
     event_origin_time : str = ""
     event_time : str = ""
-    debug_message = ""
+    debug_message: str = ""
     optional_info : str = ""
     
