@@ -1,0 +1,3 @@
+[submodule "meow_base"]
+	path = meow_base
+	url = git@github.com:toppggg/meow_base.git
