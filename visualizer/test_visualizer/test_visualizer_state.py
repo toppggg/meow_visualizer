@@ -4,8 +4,8 @@ from visualizer.visualizer_state import VisualizerState
 import time
 import pandas as pd
 
-# from meow_base.recipes.jupyter_notebook_recipe import JupyterNotebookRecipe
-# from meow_base.tests.shared import BAREBONES_NOTEBOOK
+from meow_base.recipes.jupyter_notebook_recipe import JupyterNotebookRecipe
+from meow_base.tests.shared import BAREBONES_NOTEBOOK
 
 class EventQueueDataTest(unittest.TestCase):
     def setUp(self) -> None:
@@ -48,7 +48,7 @@ class EventQueueDataTest(unittest.TestCase):
         eventId = "idnr1"
         vs = ("random info", eventId, "", "Monitor", time1, time1, "random message", "OptionalInfo", "")
         visualizer_state = VisualizerState("testState")
-        # jnr = JupyterNotebookRecipe("recipe", BAREBONES_NOTEBOOK)
+        jnr = JupyterNotebookRecipe("recipe", BAREBONES_NOTEBOOK)
         self.assertNotIn(vs,visualizer_state._queue)       
 
         with self.assertRaises(TypeError):
