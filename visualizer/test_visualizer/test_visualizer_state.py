@@ -120,15 +120,17 @@ class EventQueueDataTest(unittest.TestCase):
     def testDequeueNoDebugMessage(self) :
         time1 = str(time.time())
         eventId = "idnr1"
-        vs = VISUALIZER_STRUCT("rule1", eventId, "", "Monitor", time1, time1, "", "OptionalInfo")
+        dequeue_struct = VISUALIZER_STRUCT("rule1", eventId, "", "Monitor", time1, time1, "", "OptionalInfo")
         visualizer_state = VisualizerState("testState")
-        visualizer_state._queue[eventId] = vs
 
-        self.assertIn(vs,visualizer_state._queue.values()) #arrange
+        visualizer_state._queue[eventId] = dequeue_struct
+        visualizer_state._average_state_time[dequeue_struct.event_type] = (0,0.0)
+        self.assertIn(dequeue_struct.event_type,visualizer_state._average_state_time) #arrange
+        self.assertIn(dequeue_struct,visualizer_state._queue.values()) #arrange
 
-        visualizer_state.dequeue(eventId) #act
+        visualizer_state.dequeue(dequeue_struct) #act
 
-        self.assertNotIn(vs,visualizer_state._queue.values()) #assert
+        self.assertNotIn(dequeue_struct,visualizer_state._queue.values()) #assert
 
     def testDequeueWrongType(self) :
         time1 = str(time.time())

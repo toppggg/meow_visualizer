@@ -73,16 +73,16 @@ class VisualizerState:
         assert isinstance(visualizer_struct, VISUALIZER_STRUCT) # assert that the input is of type VISUALIZER_STRUCT
         popped_visualizer_struct = self._queue.pop(visualizer_struct.event_id) # remove struct from queue dictionary
         self._update_average_time(popped_visualizer_struct, visualizer_struct)
-        pass
+        
 
     # Tilføjet af Johan 19. maj 2023
     def _update_average_time(self, popped_visualizer_struct : VISUALIZER_STRUCT, received_visualizer_struct:VISUALIZER_STRUCT) -> None:
         
-        self._average_state_time[received_visualizer_struct.event_type][0] = self._average_state_time[received_visualizer_struct.event_type][0] + 1
-        self._average_state_time[received_visualizer_struct.event_type][1] = \
-            self._average_state_time[popped_visualizer_struct.event_type][1] + \
-                ((float(received_visualizer_struct.event_time) - float(popped_visualizer_struct.event_time) - self._average_state_time[popped_visualizer_struct.event_type][1]) \
-                 /(self._average_state_time[received_visualizer_struct.event_type][0] + 1))
+        # self._average_state_time[received_visualizer_struct.event_type][0] = self._average_state_time[received_visualizer_struct.event_type][0] + 1
+        # self._average_state_time[received_visualizer_struct.event_type][1] = \
+        #     self._average_state_time[popped_visualizer_struct.event_type][1] + \
+        #         ((float(received_visualizer_struct.event_time) - float(popped_visualizer_struct.event_time) - self._average_state_time[popped_visualizer_struct.event_type][1]) \
+        #          /(self._average_state_time[received_visualizer_struct.event_type][0] + 1))
                 # running average, (old average + ((new value - old average) / (n+1)))
 
         #easier to read version:
@@ -92,9 +92,10 @@ class VisualizerState:
         new_n = old_n + 1
         time_this_event = float(received_visualizer_struct.event_time) - float(popped_visualizer_struct.event_time) 
         new_average_time = old_average + ((time_this_event - old_average) / new_n)
-
-        self._average_state_time[received_visualizer_struct.event_type][0] = new_n
-        self._average_state_time[received_visualizer_struct.event_type][1] = new_average_time
+        new_tuple = (new_n, new_average_time)
+        self._average_state_time[received_visualizer_struct.event_type] = new_tuple
+        # self._average_state_time[received_visualizer_struct.event_type][0] = new_n
+        # self._average_state_time[received_visualizer_struct.event_type][1] = new_average_time
         
     def get_queue_data(self):
         pass
