@@ -28,6 +28,7 @@ class VisualizerState:
         update_time = int(time.time())
         if update_time - self._last_update_time > 0 :
             self._update_seconds_array(update_time)
+
         
         self._last_update_time = update_time
 
@@ -45,8 +46,9 @@ class VisualizerState:
                     self._seconds_data[i] = 0
         else:
             #nulstil indtil update_time
-            for i in range(self._last_update_time+1, (update_time % SECONDS_IN_MINUTE) + 1) :
-                    self._seconds_data[i] = 0
+            for i in range((self._last_update_time + 1) % SECONDS_IN_MINUTE, (update_time % SECONDS_IN_MINUTE) + 1) :
+                print(i)    
+                self._seconds_data[i] = 0
 
 
     def enqueue(self, visualizer_struct: VISUALIZER_STRUCT):

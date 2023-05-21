@@ -12,6 +12,7 @@ class EventQueueDataTest(unittest.TestCase):
         super().setUp()
 
 
+    ###Test that new visualizer state is created with correct name
     def TestInit(self):
         visualizer_state = VisualizerState("monitor")
 
