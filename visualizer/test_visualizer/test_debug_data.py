@@ -1,4 +1,5 @@
 import unittest
+
 from visualizer.debug_data import DebugData
 from visualizer.visualizer_struct import VISUALIZER_STRUCT
 

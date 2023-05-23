@@ -1,6 +1,6 @@
 import pandas as pd
 
-from visualizer_struct import VISUALIZER_STRUCT
+from visualizer.visualizer_struct import VISUALIZER_STRUCT
 
 class IVisualizerQueryData :
 

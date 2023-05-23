@@ -6,11 +6,11 @@ from visualizer.visualizer_state import VisualizerState
 from visualizer.debug_data import DebugData
 from visualizer.i_visualizer_receive_data import IVisualizerReceiveData
 from visualizer.i_visualizer_query_data import IVisualizerQueryData
-from visualizer_struct import VISUALIZER_STRUCT
+from visualizer.visualizer_struct import VISUALIZER_STRUCT
 
 
 class Visualizer(IVisualizerReceiveData, IVisualizerQueryData) :
-    _visualizer_states : dict[VisualizerState.name, VisualizerState]
+    _visualizer_states : dict[str, VisualizerState]
     _debug_data : DebugData
     _end_state : VisualizerState
 
@@ -26,12 +26,17 @@ class Visualizer(IVisualizerReceiveData, IVisualizerQueryData) :
 
     ### Add event to visualizer_state, if the state does not exist, add the event to debug_struct ###
     def _add_event(self, visualizer_struct: VISUALIZER_STRUCT) -> None :
-        try:
-            visualizer_state = self._visualizer_states[visualizer_struct.current_state]
-            visualizer_state.enqueue(visualizer_struct)
-        except:
-            visualizer_struct.debug_message = "Event received where visualizer_state does not exist"
-            DebugData.add_debug_struct(visualizer_struct)
+        if (visualizer_struct.current_state not in self._visualizer_states.keys()) :
+            self._visualizer_states[visualizer_struct.current_state] = VisualizerState(visualizer_struct.current_state)
+
+        visualizer_ToState = self._visualizer_states[visualizer_struct.current_state]
+        visualizer_ToState.enqueue(visualizer_struct)
+
+        if (visualizer_struct.previous_state != "") : 
+            visualizer_FromState = self._visualizer_states[visualizer_struct.previous_state]   
+            visualizer_FromState.dequeue(visualizer_struct)
+
+        
     
     ### Read from pipe, check that input is actually VISUALIZER_STRUCT, and pass events to _add_event ###
     def _update(self) -> None :
