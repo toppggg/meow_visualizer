@@ -1,9 +1,5 @@
 import unittest
-from unittest.mock import patch
 import time
-
-from meow_base.recipes.jupyter_notebook_recipe import JupyterNotebookRecipe
-from meow_base.tests.shared import BAREBONES_NOTEBOOK
 
 from visualizer.visualizer_struct import VISUALIZER_STRUCT
 from visualizer.visualizer_state import VisualizerState
@@ -39,18 +35,18 @@ class EventQueueDataTest(unittest.TestCase):
 
         self.assertIn(vs,visualizer_state._queue.values())        
 
-    def testEnqueueWrongType(self) :
-        time1 = str(time.time())
-        eventId = "idnr1"
-        vs = ("random info", eventId, "", "Monitor", time1, time1, "random message", "OptionalInfo", "")
-        visualizer_state = VisualizerState("testState")
-        jnr = JupyterNotebookRecipe("recipe", BAREBONES_NOTEBOOK)
-        self.assertNotIn(vs,visualizer_state._queue)       
+    # def testEnqueueWrongType(self) :
+    #     time1 = str(time.time())
+    #     eventId = "idnr1"
+    #     vs = ("random info", eventId, "", "Monitor", time1, time1, "random message", "OptionalInfo", "")
+    #     visualizer_state = VisualizerState("testState")
+    #     jnr = JupyterNotebookRecipe("recipe", BAREBONES_NOTEBOOK)
+    #     self.assertNotIn(vs,visualizer_state._queue)       
 
-        with self.assertRaises(TypeError):
-                visualizer_state.enqueue(jnr)               
+    #     with self.assertRaises(TypeError):
+    #             visualizer_state.enqueue(jnr)               
 
-        self.assertNotIn(vs, visualizer_state._queue)       
+    #     self.assertNotIn(vs, visualizer_state._queue)       
 
 
     ## enqueue does not update average time

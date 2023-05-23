@@ -2,8 +2,7 @@ import time
 import pandas as pd
 
 from visualizer.visualizer_struct import VISUALIZER_STRUCT
-from visualizer.vars import SECONDS_IN_MINUTE, MINUTES_IN_HOUR, HOURS_IN_DAY,\
-    SECONDS_IN_HOUR, SECONDS_IN_DAY
+from visualizer.vars import SECONDS_IN_MINUTE, MINUTES_IN_HOUR, HOURS_IN_DAY
 
 
 class VisualizerState:
@@ -38,7 +37,8 @@ class VisualizerState:
             for i in range ((self._last_update_time % SECONDS_IN_MINUTE) + 1, SECONDS_IN_MINUTE): 
                 self._seconds_data[i] = 0   #set the subsequent seconds to 0, since nothing was received
             self._convert_to_minutes(update_time)
-            if (update_time // SECONDS_IN_MINUTE - self._last_update_time // SECONDS_IN_MINUTE > 1 ) or (update_time % SECONDS_IN_MINUTE >= self._last_update_time % SECONDS_IN_MINUTE) : 
+            if (update_time // SECONDS_IN_MINUTE - self._last_update_time // SECONDS_IN_MINUTE > 1 ) \
+                or (update_time % SECONDS_IN_MINUTE >= self._last_update_time % SECONDS_IN_MINUTE) : 
                 for i in range (0, (self._last_update_time % SECONDS_IN_MINUTE) + 1) : # more than a min has passed, reset everything
                     self._seconds_data[i] = 0
             else :
@@ -47,7 +47,6 @@ class VisualizerState:
         else:
             #nulstil indtil update_time
             for i in range((self._last_update_time + 1) % SECONDS_IN_MINUTE, (update_time % SECONDS_IN_MINUTE) + 1) :
-                print(i)    
                 self._seconds_data[i] = 0
 
 
@@ -96,6 +95,16 @@ class VisualizerState:
         
     def get_queue_data(self):
         return self._queue
+    
+    def get_average_time(self, event_types : list[VISUALIZER_STRUCT.event_type]) -> dict[VISUALIZER_STRUCT.event_type, (int,float)] : 
+        result = {}
+        for event_type in event_types:
+            try:
+                dict_value = self._average_state_time[event_type]
+                result[event_type] = dict_value
+            except KeyError:
+                continue
+        return result
 
     def get_minutes_data(self, event_types : list[VISUALIZER_STRUCT.event_type]) -> pd.DataFrame :
         pass
@@ -128,15 +137,15 @@ class VisualizerState:
         
         ### this may not work, there are not test for this yet.
         for index, row in self._seconds_data.iterrows():
-            self._minutes_data.loc[index][last_update_time % MINUTES_IN_HOUR] = row.sum
-        print(self._minutes_data)
+            self._minutes_data.loc[index][last_update_time % MINUTES_IN_HOUR] = row.sum()
         
         if (update_time // ARRAY_SIZE) - (last_update_time // ARRAY_SIZE) > 0 : # update has passed a new min.
             #nulstil resten af arrayet
             for i in range ((last_update_time % ARRAY_SIZE) + 1, ARRAY_SIZE): 
                 self._minutes_data[i] = 0   #set the subsequent seconds to 0, since nothing was received
             self._convert_to_hour(update_time)
-            if (update_time // ARRAY_SIZE - last_update_time // ARRAY_SIZE > 1 ) or (update_time % ARRAY_SIZE >= last_update_time % MINUTES_IN_HOUR) : 
+            if (update_time // ARRAY_SIZE - last_update_time // ARRAY_SIZE > 1 ) or \
+                (update_time % ARRAY_SIZE >= last_update_time % MINUTES_IN_HOUR) : 
                 for i in range (0, (last_update_time % ARRAY_SIZE) + 1) : # more than a min has passed, reset everything
                     self._minutes_data[i] = 0
             else :
@@ -149,16 +158,19 @@ class VisualizerState:
 
     def _convert_to_hour(self,update_time) -> None:
         #store the last 60 minutes in the hour array in static memory
+        #otherwise identical to the _convert_to_minutes function just with arraysize = MINUTES_IN_HOUR (= 24), 
+        #and then it should call the _convert_to_day function
         pass
     def _convert_to_day():
         pass
+        #identical to the _convert_to_minutes function just with 
     def _convert_to_month():
         pass
     def _convert_to_year():
         pass
 
-        ### Sort the dataframe so that the timestamp is in the first column
+        ### Sort the dataframe so that time.time() is the last element in the array, and the first element is the oldest
     def _aux_return_df_order_by_timestamp(self, timestamp, dataframe: pd.DataFrame) -> pd.DataFrame :
         cols = dataframe.columns.tolist()
-        new_cols = cols[timestamp:] + cols[:timestamp]
+        new_cols = cols[timestamp + 1:] + cols[:timestamp + 1]
         return dataframe[new_cols]

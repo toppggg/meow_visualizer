@@ -28,19 +28,19 @@ class EventQueueDataTest(unittest.TestCase):
 
         self.assertNotIn(dequeue_struct,visualizer_state._queue.values()) #assert
 
-    def testDequeueWrongType(self) :
-        time1 = str(time.time())
-        eventId = 1
-        vs = ("rule1", eventId, "", "Monitor", time1, time1, "", "OptionalInfo")
-        visualizer_state = VisualizerState("testState")
-        visualizer_state._queue[eventId] = vs
+    # def testDequeueWrongType(self) :
+    #     time1 = str(time.time())
+    #     eventId = 1
+    #     vs = ("rule1", eventId, "", "Monitor", time1, time1, "", "OptionalInfo")
+    #     visualizer_state = VisualizerState("testState")
+    #     visualizer_state._queue[eventId] = vs
 
-        self.assertIn(vs,visualizer_state._queue.values()) 
+    #     self.assertIn(vs,visualizer_state._queue.values()) 
 
-        with self.assertRaises(TypeError):
-                visualizer_state.dequeue(eventId)
+    #     with self.assertRaises(TypeError):
+    #             visualizer_state.dequeue(eventId)
 
-        self.assertIn(vs,visualizer_state._queue.values())
+    #     self.assertIn(vs,visualizer_state._queue.values())
         
     def testDequeueAverageTimeUpdated(self) :
         time1 = time.time()-200

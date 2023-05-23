@@ -1,19 +1,20 @@
-from visualizer_struct import VISUALIZER_STRUCT
 import pandas as pd
+
+from visualizer_struct import VISUALIZER_STRUCT
 
 class IVisualizerQueryData :
 
-    def get_seconds_data(event_types: list[VISUALIZER_STRUCT.event_type]) -> pd.DataFrame :
+    def get_seconds_data(state_name : str, event_types: list[VISUALIZER_STRUCT.event_type] = []) -> pd.DataFrame :
         """ Return dataframe with events triggered pr second for the last 60 seconds, grouped by event_type """
-    def get_minutes_data(event_types: list[VISUALIZER_STRUCT.event_type]) -> pd.DataFrame :
+    def get_minutes_data(state_name : str, event_types: list[VISUALIZER_STRUCT.event_type] = []) -> pd.DataFrame :
         """ Return dataframe with events triggered pr second for the last 60 minues, grouped by event_type """
-    def get_hours_data(event_types: list[VISUALIZER_STRUCT.event_type]) -> pd.DataFrame :
+    def get_hours_data(state_name : str, event_types: list[VISUALIZER_STRUCT.event_type] = []) -> pd.DataFrame :
         """ Return dataframe with events triggered pr second for the last 24 hours, grouped by event_type """
-    def get_days_data(event_types: list[VISUALIZER_STRUCT.event_type]) -> pd.DataFrame :
+    def get_days_data(state_name : str, event_types: list[VISUALIZER_STRUCT.event_type] = []) -> pd.DataFrame :
         """ Return dataframe with events triggered pr second for the last 28-31 days, grouped by event_type """
-    def get_months_data(event_types: list[VISUALIZER_STRUCT.event_type]) -> pd.DataFrame :
+    def get_months_data(state_name : str, event_types: list[VISUALIZER_STRUCT.event_type] = []) -> pd.DataFrame :
         """ Return dataframe with events triggered pr second for the last 60 seconds, grouped by event_type """
-    def get_years_data(event_types: list[VISUALIZER_STRUCT.event_type]) -> pd.DataFrame :
+    def get_years_data(state_name : str, event_types: list[VISUALIZER_STRUCT.event_type] = []) -> pd.DataFrame :
         """ Return dataframe with events triggered pr second for the last 60 seconds, grouped by event_type """
     def get_debug_messages() -> list[VISUALIZER_STRUCT] :
         """ Return a list of visualizer structs that contain debug_messages """
