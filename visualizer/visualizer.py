@@ -1,9 +1,11 @@
+import pandas as pd
+
 from visualizer.visualizer_state import VisualizerState
 from visualizer.debug_data import DebugData
 from visualizer.i_visualizer_receive_data import IVisualizerReceiveData
 from visualizer.i_visualizer_query_data import IVisualizerQueryData
 from visualizer_struct import VISUALIZER_STRUCT
-import pandas as pd
+
 
 class Visualizer(IVisualizerReceiveData, IVisualizerQueryData) :
     _visualizer_states : dict[VisualizerState.name, VisualizerState]
@@ -16,6 +18,7 @@ class Visualizer(IVisualizerReceiveData, IVisualizerQueryData) :
         pass
     def _update(self) -> None :
         pass
+
     def get_seconds_data(event_types: list[VISUALIZER_STRUCT.event_type]) -> pd.DataFrame :
         pass
     def get_minutes_data(event_types: list[VISUALIZER_STRUCT.event_type]) -> pd.DataFrame :

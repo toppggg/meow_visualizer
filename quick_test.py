@@ -1,21 +1,34 @@
 import unittest
 from unittest.mock import patch
+import random
+import time
+import pandas as pd
 
 from visualizer.visualizer_struct import VISUALIZER_STRUCT
 from visualizer.visualizer_state import VisualizerState
-import time
-import pandas as pd
+from visualizer.vars import SECONDS_IN_MINUTE, MINUTES_IN_HOUR, HOURS_IN_DAY,\
+    SECONDS_IN_HOUR, SECONDS_IN_DAY 
 
 from meow_base.recipes.jupyter_notebook_recipe import JupyterNotebookRecipe
 
 visualizer_state = VisualizerState("testState")
 start_time = int(time.time())
 visualizer_state._last_update_time = start_time
-vs = VISUALIZER_STRUCT("rule1","idnr1", "", "Monitor", start_time, start_time, "random message", "OptionalInfo")
-visualizer_state._seconds_data.loc[vs.event_type] = [5] * 60
-visualizer_state._minutes_data.loc[vs.event_type] = [5] * 60
+vs1 = VISUALIZER_STRUCT("rule1","idnr1", "", "Monitor", start_time, start_time, "random message", "OptionalInfo")
+vs2 = VISUALIZER_STRUCT("rule2","idnr3", "", "Monitor", start_time, start_time, "random message", "OptionalInfo")
+vs3 = VISUALIZER_STRUCT("rule3","idnr4", "", "Monitor", start_time, start_time, "random message", "OptionalInfo")
+visualizer_state._seconds_data.loc[vs1.event_type] = [random.randint(1,10)] * SECONDS_IN_MINUTE
+visualizer_state._seconds_data.loc[vs2.event_type] = [random.randint(1,10)] * SECONDS_IN_MINUTE
+visualizer_state._seconds_data.loc[vs3.event_type] = [random.randint(1,10)] * SECONDS_IN_MINUTE
+
+visualizer_state._minutes_data.loc[vs1.event_type] = [5] * SECONDS_IN_MINUTE
+visualizer_state._minutes_data.loc[vs2.event_type] = [5] * SECONDS_IN_MINUTE
+visualizer_state._minutes_data.loc[vs3.event_type] = [5] * SECONDS_IN_MINUTE
 
 
-time.sleep(10)
-visualizer_state._update()
-print(visualizer_state._seconds_data.loc[vs.event_type])
+print(visualizer_state._seconds_data)
+print(visualizer_state.get_seconds_data(["rule1","rule2"]))
+# print(visualizer_state._aux_return_df_order_by_timestamp(5, visualizer_state._seconds_data))
+# time.sleep(10)
+# visualizer_state._update()
+# print(visualizer_state._seconds_data.loc[vs.event_type])
