@@ -2,7 +2,10 @@ import pandas as pd
 
 from visualizer.visualizer_struct import VISUALIZER_STRUCT
 
+
 class IVisualizerQueryData :
+
+    visualizer_update_time : int 
 
     def get_seconds_data(state_name : str, event_types: list[VISUALIZER_STRUCT.event_type] = []) -> pd.DataFrame :
         """ Return dataframe from the state, containing  events triggered pr second for the last 60 seconds, grouped by event_type """
@@ -26,3 +29,7 @@ class IVisualizerQueryData :
         """ Return all visualizer_structs contained in all visualizer_states in Visualizser"""
     def get_event_id(event_id : VISUALIZER_STRUCT.event_id) -> VISUALIZER_STRUCT :
         """ Return event from event_id """
+    def get_time() :
+        """ Return the updatetime """
+    def get_all_states() -> list[str] :
+        """ Return all states in visualizer """

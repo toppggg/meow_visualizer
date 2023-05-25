@@ -1,6 +1,7 @@
 import time
 import pandas as pd
 import threading
+import datetime as dt
 
 from visualizer.visualizer_struct import VISUALIZER_STRUCT
 from visualizer.vars import SECONDS_IN_MINUTE, MINUTES_IN_HOUR, HOURS_IN_DAY\
@@ -123,6 +124,7 @@ class VisualizerState:
         self._update()
         time_now_seconds_part = timestamp % SECONDS_IN_MINUTE 
         dataframe_sorted = self._aux_return_df_order_by_timestamp(time_now_seconds_part, self._seconds_data)
+
         if event_types:
             return dataframe_sorted.loc[event_types]
         else:
@@ -186,6 +188,9 @@ class VisualizerState:
     def get_event_id(self,event_id) -> VISUALIZER_STRUCT :
         if event_id in self._queue:
             return self._queue[event_id]
+        
+    def get_time(self) -> int:
+        return self._last_update_time
         
     def _back_dated_event(self, visualizer_struct: VISUALIZER_STRUCT) -> None:
         update_time = self._last_update_time

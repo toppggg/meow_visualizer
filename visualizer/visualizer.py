@@ -19,6 +19,7 @@ class Visualizer(IVisualizerReceiveData, IVisualizerQueryData) :
     _end_state : VisualizerState
     __shutdown : bool = False
     __receiver : threading.Thread
+    visualizer_update_time : int #time since epoch
 
     def __init__(self, endState  : str) ->None:
         self.receive_channel = Queue()
@@ -26,6 +27,7 @@ class Visualizer(IVisualizerReceiveData, IVisualizerQueryData) :
         self._end_state = VisualizerState(endState)
         self._visualizer_states = {}
         self._visualizer_states[endState] = self._end_state
+        self.visualizer_update_time = int(time.time())
 
         self.__receiver = threading.Thread(target=self.__receiver_worker)
         self.__receiver.start()
@@ -68,7 +70,9 @@ class Visualizer(IVisualizerReceiveData, IVisualizerQueryData) :
     def get_seconds_data(self, state_name : str, event_types: list[VISUALIZER_STRUCT.event_type] = []) -> pd.DataFrame :
         try:
             visualizer_state = self._visualizer_states[state_name]
-            return visualizer_state.get_seconds_data(event_types)
+            result = visualizer_state.get_seconds_data(event_types)
+            self.visualizer_update_time = visualizer_state.get_time()
+            return result
         except:
             return None
         
@@ -149,6 +153,9 @@ class Visualizer(IVisualizerReceiveData, IVisualizerQueryData) :
             debug_struct.optional_info = str(pipe_data)
             self._debug_data.add_debug_struct(debug_struct)   
             return None 
+        
+    def get_time(self) -> int :
+        return self.visualizer_update_time
         
     def shutdown(self) -> None :
         self.__shutdown = True
