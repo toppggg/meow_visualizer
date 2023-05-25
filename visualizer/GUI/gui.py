@@ -15,18 +15,19 @@ class GUI () :
     _visualizer : IVisualizerQueryData
     _plot_thread : Thread
     _state : str
+    _all_states : list[str]
     _gui_state : IGUIDataframeStrategy
     _time_options = ['Seconds', 'Minutes', 'Hours']
     _event_types : list[str]
-    _unique_event_type : list[str]
+    _unique_event_type : str
 
     def __init__(self, visualizer : IVisualizerQueryData, state_name : str ) :
         self._visualizer = visualizer
         self._state = state_name
         self._event_types = ["all"]
         self._gui_state = GetSecondsStrategy(self._visualizer)
-        self._unique_event_type = ["all"]
-
+        self._unique_event_type = "all"
+        self._all_states = self._visualizer.get_all_states()
         self._plot_thread = Thread(target=self.plot).start()
 
     def plot(self) : 
@@ -47,7 +48,7 @@ class GUI () :
             dcc.Dropdown(
                 id='event_type-dropdown',
                 options=[{'label': i, 'value': i} for i in self._event_types],
-                value='all'
+                value=self._unique_event_type
             ),
             ]),
             html.Div([
@@ -65,8 +66,10 @@ class GUI () :
         def update_figure(n_intervals):
 
             # print(self._gui_state)
-            df = self._gui_state.get_data(self._state, self._unique_event_type)
-
+            if self._unique_event_type == "all" :
+                df = self._gui_state.get_data(self._state, [])
+            else :
+                df = self._gui_state.get_data(self._state, [self._unique_event_type])
             # self._event_types = ['all']+ df.columns.tolist()
             # print(self._event_types)
             if df is not None :
@@ -76,13 +79,15 @@ class GUI () :
         
 
         @app.callback(
-            Output('state-dropdown', 'value'),
+            [Output('state-dropdown', 'options'),
+            Output('event_type-dropdown', 'value')],
             Input('state-dropdown', 'value')
         )
         def update_dropdown(value):
             # this will change the value of self._state when the dropdown selection changes
             self._state = value
-            return value
+            self._all_states = self._visualizer.get_all_states()
+            return  [{'label': i, 'value': i} for i in self._all_states], "all"
 
         @app.callback(
         Output('strategy-dropdown', 'value'),
@@ -105,12 +110,12 @@ class GUI () :
         )
         def update_dropdown(value):
             # this will change the value of self._state when the dropdown selection changes
-            if value == "all" :
-                self._unique_event_type = None
-            else :
-                self._unique_event_type = [value]
+            # if value == "all" :
+            #     self._unique_event_type = "all"
+            # else :
+            self._unique_event_type = value
+            print(value)
             self._event_types = ["all"] + list(self._visualizer.get_event_average_time_in_state(self._state).keys())
-            return [{'label': i, 'value': i} for i in self._event_types]
-            # return value
+            return ([{'label': i, 'value': i} for i in self._event_types])
 
         app.run()

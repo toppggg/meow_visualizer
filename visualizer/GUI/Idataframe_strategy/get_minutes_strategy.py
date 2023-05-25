@@ -11,7 +11,7 @@ class GetMinutesStrategy(IGUIDataframeStrategy):
         def __init__(self, visualizer : IVisualizerQueryData) :
              self._visualizer = visualizer
 
-        def get_data(self, state, event_type : list[str]) -> pd.DataFrame  :
+        def get_data(self, state, event_type : list[str] = []) -> pd.DataFrame  :
             df = self._visualizer.get_minutes_data(state, event_type)
             result = df.T 
 
