@@ -107,16 +107,27 @@ class VisualizerState:
     
     def get_average_time(self, event_types : list[VISUALIZER_STRUCT.event_type]) -> dict[VISUALIZER_STRUCT.event_type, (int,float)] : 
         result = {}
-        for event_type in event_types:
-            try:
-                dict_value = self._average_state_time[event_type]
-                result[event_type] = dict_value
-            except KeyError:
-                continue
+        if not event_types:
+            result = self._average_state_time
+        else:
+            for event_type in event_types:
+                try:
+                    dict_value = self._average_state_time[event_type]
+                    result[event_type] = dict_value
+                except KeyError:
+                    continue
         return result
 
     def get_minutes_data(self, event_types : list[VISUALIZER_STRUCT.event_type]) -> pd.DataFrame :
-        pass
+        timestamp = int(time.time())
+        self._update()
+        time_now_time_part = (timestamp // SECONDS_IN_MINUTE )% MINUTES_IN_HOUR 
+        dataframe_sorted = self._aux_return_df_order_by_timestamp(time_now_time_part, self._minutes_data)
+
+        if event_types:
+            return dataframe_sorted.loc[event_types]
+        else:
+            return dataframe_sorted
 
         # Tilføjet af Johan 19. maj 2023
     def get_seconds_data(self, event_types : list[VISUALIZER_STRUCT.event_type] = []) -> pd.DataFrame :

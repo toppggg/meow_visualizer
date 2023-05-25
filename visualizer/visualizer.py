@@ -80,7 +80,9 @@ class Visualizer(IVisualizerReceiveData, IVisualizerQueryData) :
     def get_minutes_data(self, state_name : str, event_types: list[VISUALIZER_STRUCT.event_type] = []) -> pd.DataFrame :
         try:
             visualizer_state = self._visualizer_states[state_name]
-            return visualizer_state.get_minutes_data(event_types)
+            result = visualizer_state.get_minutes_data(event_types)
+            self.visualizer_update_time = visualizer_state.get_time()
+            return result
         except:
             return None
         
@@ -109,7 +111,7 @@ class Visualizer(IVisualizerReceiveData, IVisualizerQueryData) :
             visualizer_state = self._visualizer_states[state_name]
             return visualizer_state.get_average_time(event_types)
         except:
-            return None
+            return {}
 
 
     def get_event_average_live_time(self, event_types :list[VISUALIZER_STRUCT.event_type] = []) \

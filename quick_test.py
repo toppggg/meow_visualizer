@@ -41,6 +41,7 @@ for i in range(0,60):
         eventId2 = "event" + str(j) + str(j)
         vs1 = VISUALIZER_STRUCT("rule2",eventId1, "", toState1, time2, time2, "", "OptionalInfo")
         vs2 = VISUALIZER_STRUCT("rule1",eventId2, "", toState1, time2, time2, "", "OptionalInfo")
+        vs3 = VISUALIZER_STRUCT("rule1",eventId2, "", toState1, time2, time2, "", "OptionalInfo")
         visualizer.receive_channel.put(vs1)
         visualizer.receive_channel.put(vs2)
         if random.randint(0,2):
