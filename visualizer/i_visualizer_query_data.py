@@ -5,7 +5,7 @@ from visualizer.visualizer_struct import VISUALIZER_STRUCT
 class IVisualizerQueryData :
 
     def get_seconds_data(state_name : str, event_types: list[VISUALIZER_STRUCT.event_type] = []) -> pd.DataFrame :
-        """ Return dataframe with events triggered pr second for the last 60 seconds, grouped by event_type """
+        """ Return dataframe from the state, containing  events triggered pr second for the last 60 seconds, grouped by event_type """
     def get_minutes_data(state_name : str, event_types: list[VISUALIZER_STRUCT.event_type] = []) -> pd.DataFrame :
         """ Return dataframe with events triggered pr second for the last 60 minues, grouped by event_type """
     def get_hours_data(state_name : str, event_types: list[VISUALIZER_STRUCT.event_type] = []) -> pd.DataFrame :

@@ -1,8 +1,10 @@
 import time
 import pandas as pd
+import threading
 
 from visualizer.visualizer_struct import VISUALIZER_STRUCT
-from visualizer.vars import SECONDS_IN_MINUTE, MINUTES_IN_HOUR, HOURS_IN_DAY
+from visualizer.vars import SECONDS_IN_MINUTE, MINUTES_IN_HOUR, HOURS_IN_DAY\
+    , SECONDS_IN_HOUR, SECONDS_IN_DAY
 
 
 class VisualizerState:
@@ -12,6 +14,7 @@ class VisualizerState:
     _average_state_time:dict[VISUALIZER_STRUCT.event_type,(int,float)] # value is number of events and average time
     _seconds_data: pd.DataFrame
     _minutes_data: pd.DataFrame
+    __lock = threading.Lock()
 
     def __init__(self, name: str):
         self._seconds_data = pd.DataFrame(columns=[i for i in range(0,SECONDS_IN_MINUTE)])
@@ -28,7 +31,6 @@ class VisualizerState:
         if update_time - self._last_update_time > 0 :
             self._update_seconds_array(update_time)
 
-        
         self._last_update_time = update_time
 
     def _update_seconds_array(self, update_time : int) -> None :
@@ -54,17 +56,22 @@ class VisualizerState:
         assert isinstance(visualizer_struct, VISUALIZER_STRUCT) # assert that the input is of type VISUALIZER_STRUCT
         self._queue[visualizer_struct.event_id] = visualizer_struct # add struct to queue dictionary
         self._check_if_event_type_exists(visualizer_struct.event_type)
-        self._update() 
-        self._seconds_data.loc[visualizer_struct.event_type][(int(float(visualizer_struct.event_time)) % SECONDS_IN_MINUTE)] = \
-            self._seconds_data.loc[visualizer_struct.event_type][(int(float(visualizer_struct.event_time)) % SECONDS_IN_MINUTE)] + 1 # add 1 to the current second in the dataframe
-        
+        self._update()
+        if self._last_update_time // SECONDS_IN_MINUTE > int(float(visualizer_struct.event_time)) // SECONDS_IN_MINUTE:
+            self._back_dated_event(visualizer_struct)
+        else:
+            with self.__lock:
+                self._seconds_data.loc[visualizer_struct.event_type, (int(float(visualizer_struct.event_time)) % SECONDS_IN_MINUTE)] += 1
+
+
     #Create DataFrame if it is the first event of that type
     def _check_if_event_type_exists(self, event_type):
-        if event_type not in self._seconds_data: 
+        if event_type not in self._seconds_data.index  :  
+
             self._seconds_data.loc[event_type] = [0]*SECONDS_IN_MINUTE
-        if event_type not in self._minutes_data:            
+        if event_type not in self._minutes_data.index:            
             self._minutes_data.loc[event_type] = [0]*MINUTES_IN_HOUR
-        if event_type not in self._minutes_data:      
+        if event_type not in self._minutes_data.index:      
             self._hours_data.loc[event_type] = [0]*HOURS_IN_DAY
         if event_type not in self._average_state_time:
             self._average_state_time[event_type] = (0,0.0)
@@ -73,11 +80,12 @@ class VisualizerState:
     def dequeue(self, visualizer_struct:VISUALIZER_STRUCT):
         assert isinstance(visualizer_struct, VISUALIZER_STRUCT) # assert that the input is of type VISUALIZER_STRUCT
         self._check_if_event_type_exists(visualizer_struct.event_type) # check if event_type exists in the average_state_time dictionary
-        try:
-            popped_visualizer_struct = self._queue.pop(visualizer_struct.event_id) # remove struct from queue dictionary
-            self._update_average_time(popped_visualizer_struct, visualizer_struct)
-        except KeyError:
-            pass # Defensive vs code by contract, if the key does not exist. So far defensive. Could return a debug message here.
+        with self.__lock:
+            try:
+                popped_visualizer_struct = self._queue.pop(visualizer_struct.event_id) # remove struct from queue dictionary
+                self._update_average_time(popped_visualizer_struct, visualizer_struct)
+            except KeyError:
+                pass # Defensive vs code by contract, if the key does not exist. So far defensive. Could return a debug message here.
         
 
     ### update average time for event_type
@@ -174,3 +182,20 @@ class VisualizerState:
         cols = dataframe.columns.tolist()
         new_cols = cols[timestamp + 1:] + cols[:timestamp + 1]
         return dataframe[new_cols]
+    
+    def get_event_id(self,event_id) -> VISUALIZER_STRUCT :
+        if event_id in self._queue:
+            return self._queue[event_id]
+        
+    def _back_dated_event(self, visualizer_struct: VISUALIZER_STRUCT) -> None:
+        update_time = self._last_update_time
+        event_time = visualizer_struct.event_time
+        if event_time // SECONDS_IN_DAY - update_time // SECONDS_IN_DAY > 1:
+            pass #Add to day array and potentially to hours array.
+        elif event_time // SECONDS_IN_HOUR - update_time // SECONDS_IN_HOUR > 1: 
+            pass # Add to Hour array and potential minutes array
+        else:
+            with self.__lock:
+                self._minutes_data.loc[visualizer_struct.event_type, ((int(float(visualizer_struct.event_time)) // SECONDS_IN_MINUTE) % MINUTES_IN_HOUR)] += 1
+                if update_time - event_time <= SECONDS_IN_MINUTE:
+                    self._seconds_data.loc[visualizer_struct.event_type, (int(float(visualizer_struct.event_time)) % SECONDS_IN_MINUTE)] += 1
