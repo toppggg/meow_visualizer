@@ -81,13 +81,19 @@ class GUI () :
         @app.callback(
             [Output('state-dropdown', 'options'),
             Output('event_type-dropdown', 'value')],
-            Input('state-dropdown', 'value')
+            Input('state-dropdown', 'value'),
+            Input('event_type-dropdown', 'value')
         )
-        def update_dropdown(value):
+        def update_dropdown(state_value, event_type_value):
             # this will change the value of self._state when the dropdown selection changes
-            self._state = value
+            self._state = state_value
             self._all_states = self._visualizer.get_all_states()
-            return  [{'label': i, 'value': i} for i in self._all_states], "all"
+            state_keys = self._visualizer.get_event_average_time_in_state(self._state).keys()
+            updated_event_type = "all"
+            if event_type_value in state_keys :
+                updated_event_type = event_type_value
+            return  [{'label': i, 'value': i} for i in self._all_states], updated_event_type
+            
 
         @app.callback(
         Output('strategy-dropdown', 'value'),
@@ -105,17 +111,13 @@ class GUI () :
             return value
 
         @app.callback(
-            Output('event_type-dropdown', 'options'),
+            Output('event_type-dropdown', 'options'), 
             Input('event_type-dropdown', 'value')
         )
         def update_dropdown(value):
-            # this will change the value of self._state when the dropdown selection changes
-            # if value == "all" :
-            #     self._unique_event_type = "all"
-            # else :
             self._unique_event_type = value
             print(value)
             self._event_types = ["all"] + list(self._visualizer.get_event_average_time_in_state(self._state).keys())
-            return ([{'label': i, 'value': i} for i in self._event_types])
+            return [{'label': i, 'value': i} for i in self._event_types]
 
         app.run()
