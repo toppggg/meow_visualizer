@@ -21,7 +21,7 @@ class IVisualizerQueryData :
         """ Return dataframe with events triggered pr second for the last 60 seconds, grouped by event_type """
     def get_debug_messages() -> list[VISUALIZER_STRUCT] :
         """ Return a list of visualizer structs that contain debug_messages """
-    def get_event_average_time_in_state(event_types :list[VISUALIZER_STRUCT.event_type] = None, state_name : str = "") \
+    def get_event_average_time_in_state(state_name : str = "", event_types :list[VISUALIZER_STRUCT.event_type] = []) \
         -> dict[VISUALIZER_STRUCT.event_type,(int,float)]  :
         """ Return an average time of an event_type in a given Visualizer_State"""
     def get_event_average_live_time(event_types :list[VISUALIZER_STRUCT.event_type]) -> dict[VISUALIZER_STRUCT.event_type,(int,float)] :

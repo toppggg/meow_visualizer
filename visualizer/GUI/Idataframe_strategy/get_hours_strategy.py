@@ -23,4 +23,7 @@ class GetHoursStrategy(IGUIDataframeStrategy):
             result.insert(0, 'Time', xs)
 
             result.set_index('Time', inplace=True)
+
+            result  = self.setAverage(result, state, event_type)
+
             return result

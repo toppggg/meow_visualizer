@@ -7,9 +7,9 @@ from visualizer.vars import SECONDS_IN_MINUTE
 
 class GetSecondsStrategy(IGUIDataframeStrategy):
         _visualizer : IVisualizerQueryData
-        
-        def __init__(self, visualizer : IVisualizerQueryData) :
-             self._visualizer = visualizer
+
+        def __init__(self, visualizer: IVisualizerQueryData) -> None:
+            self._visualizer = visualizer
 
         def get_data(self, state, event_type : list[str]  = []) -> pd.DataFrame  :
             df = self._visualizer.get_seconds_data(state, event_type)
@@ -21,6 +21,9 @@ class GetSecondsStrategy(IGUIDataframeStrategy):
                 xs[i] = dt.datetime.fromtimestamp(time_this_round- (SECONDS_IN_MINUTE - i)).strftime('%H:%M:%S')
 
             result.insert(0, 'Time', xs)
-
             result.set_index('Time', inplace=True)
+            
+            result  = self.setAverage(result, state, event_type)
+
             return result
+

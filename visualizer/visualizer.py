@@ -105,13 +105,15 @@ class Visualizer(IVisualizerReceiveData, IVisualizerQueryData) :
         return self._debug_data.get_debug_messages()
 
 
-    def get_event_average_time_in_state(self, state_name : str, event_types :list[VISUALIZER_STRUCT.event_type] = None) \
+    def get_event_average_time_in_state(self, state_name : str, event_types :list[VISUALIZER_STRUCT.event_type] = []) \
             -> dict[VISUALIZER_STRUCT.event_type, (int,float)] :
         try:
             visualizer_state = self._visualizer_states[state_name]
             return visualizer_state.get_average_time(event_types)
         except:
             return {}
+
+
 
 
     def get_event_average_live_time(self, event_types :list[VISUALIZER_STRUCT.event_type] = []) \

@@ -92,16 +92,16 @@ class VisualizerState:
     ### update average time for event_type
     def _update_average_time(self, popped_visualizer_struct : VISUALIZER_STRUCT, received_visualizer_struct:VISUALIZER_STRUCT) -> None:
         
-        old_n = self._average_state_time[received_visualizer_struct.event_type][0] 
-        old_average = self._average_state_time[popped_visualizer_struct.event_type][1]
-
+        old_n , _ = self._average_state_time[received_visualizer_struct.event_type]
+        _ , old_average = self._average_state_time[popped_visualizer_struct.event_type]
         new_n = old_n + 1
         time_this_event = float(received_visualizer_struct.event_time) - float(popped_visualizer_struct.event_time) 
         new_average_time = old_average + ((time_this_event - old_average) / new_n)
         new_tuple = (new_n, new_average_time)
 
         self._average_state_time[received_visualizer_struct.event_type] = new_tuple
-        
+
+
     def get_queue_data(self):
         return self._queue
     
@@ -123,6 +123,11 @@ class VisualizerState:
         self._update()
         time_now_time_part = (timestamp // SECONDS_IN_MINUTE )% MINUTES_IN_HOUR 
         dataframe_sorted = self._aux_return_df_order_by_timestamp(time_now_time_part, self._minutes_data)
+
+        # Sets current minute equal to the sum of seconds array [0:time_stamp]
+        # Will break if we change seconds array. 
+        for index, row in self._seconds_data.iterrows():
+            self._minutes_data.loc[index, time_now_time_part] = sum(row.to_list()[:timestamp%SECONDS_IN_MINUTE])
 
         if event_types:
             return dataframe_sorted.loc[event_types]
@@ -205,7 +210,7 @@ class VisualizerState:
         
     def _back_dated_event(self, visualizer_struct: VISUALIZER_STRUCT) -> None:
         update_time = self._last_update_time
-        event_time = visualizer_struct.event_time
+        event_time = int(float(visualizer_struct.event_time))
         if event_time // SECONDS_IN_DAY - update_time // SECONDS_IN_DAY > 1:
             pass #Add to day array and potentially to hours array.
         elif event_time // SECONDS_IN_HOUR - update_time // SECONDS_IN_HOUR > 1: 

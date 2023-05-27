@@ -29,8 +29,9 @@ class GUI () :
         self._unique_event_type = "all"
         self._all_states = self._visualizer.get_all_states()
         self._plot_thread = Thread(target=self.plot).start()
+        
 
-    def plot(self) : 
+    def plot(self): 
         app = Dash()
         app.layout = html.Div([
             html.Div([
@@ -54,7 +55,7 @@ class GUI () :
             html.Div([
                 html.H1(id="count-up"),
                 dcc.Graph(id="fig"),
-                dcc.Interval(id="interval", interval=1000 ),
+                dcc.Interval(id="interval", interval=1000),
             ]),
         ])
             
@@ -64,19 +65,19 @@ class GUI () :
             Input("interval", "n_intervals")
         )
         def update_figure(n_intervals):
-
             # print(self._gui_state)
             if self._unique_event_type == "all" :
                 df = self._gui_state.get_data(self._state, [])
             else :
                 df = self._gui_state.get_data(self._state, [self._unique_event_type])
-            # self._event_types = ['all']+ df.columns.tolist()
-            # print(self._event_types)
             if df is not None :
-                # return px.bar(pd.DataFrame())
-                fig = px.bar(df)
+                
+                fig = px.bar(df, labels={
+                    'variable' : 'Event Type ( Finished ; Average Time)' 
+                })
+                
                 return fig
-        
+    
 
         @app.callback(
             [Output('state-dropdown', 'options'),
@@ -119,5 +120,4 @@ class GUI () :
             print(value)
             self._event_types = ["all"] + list(self._visualizer.get_event_average_time_in_state(self._state).keys())
             return [{'label': i, 'value': i} for i in self._event_types]
-
         app.run()
