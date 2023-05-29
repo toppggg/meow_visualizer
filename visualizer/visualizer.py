@@ -115,7 +115,6 @@ class Visualizer(IVisualizerReceiveData, IVisualizerQueryData) :
 
 
 
-
     def get_event_average_live_time(self, event_types :list[VISUALIZER_STRUCT.event_type] = []) \
             ->  dict[VISUALIZER_STRUCT.event_type, (int,float)]:
         result : dict[VISUALIZER_STRUCT.event_type, (int,float)] = self._end_state.get_average_time(event_types)
@@ -139,6 +138,12 @@ class Visualizer(IVisualizerReceiveData, IVisualizerQueryData) :
             result = state.get_event_id(event_id)
             if result:
                 return result
+
+    def get_all_data(self,) -> dict[str,list[VISUALIZER_STRUCT]] :
+        result={}
+        for state in self._visualizer_states.values():
+            result[state.name] = state._queue
+        return result
 
 
     ### Auxiliary methods ###

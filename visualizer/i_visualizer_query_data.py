@@ -26,7 +26,7 @@ class IVisualizerQueryData :
         """ Return an average time of an event_type in a given Visualizer_State"""
     def get_event_average_live_time(event_types :list[VISUALIZER_STRUCT.event_type]) -> dict[VISUALIZER_STRUCT.event_type,(int,float)] :
         """ Return an average live time of an event_type """
-    def get_all_data()-> pd.DataFrame :
+    def get_all_data()-> dict[str,list[VISUALIZER_STRUCT]] :
         """ Return all visualizer_structs contained in all visualizer_states in Visualizser"""
     def get_event_id(event_id : VISUALIZER_STRUCT.event_id) -> VISUALIZER_STRUCT :
         """ Return event from event_id """

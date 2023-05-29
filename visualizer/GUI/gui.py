@@ -20,6 +20,7 @@ class GUI () :
     _time_options = ['Seconds', 'Minutes', 'Hours']
     _event_types : list[str]
     _unique_event_type : str
+    _unique_id : str
 
     def __init__(self, visualizer : IVisualizerQueryData, state_name : str ) :
         self._visualizer = visualizer
@@ -57,8 +58,26 @@ class GUI () :
                 dcc.Graph(id="fig"),
                 dcc.Interval(id="interval", interval=1000),
             ]),
+            # html.Div([
+            #         id='textarea',
+            #         value='Textarea content initialized\nwith multiple lines of text',
+            #         style={'width': '100%', 'height': 300},
+            # ),
+            html.Div(id='textarea', style={'whiteSpace': 'pre-line'})
         ])
-            
+        
+
+        @app.callback(
+            Output("textarea", "children"),
+            Input("interval", "n_intervals")
+        )
+        def update_text_field (n_intervals) :  #job_asyxlKbuWUin
+            states = self._visualizer.get_all_states()
+            # self._visualizer.get_event_id(value)
+            # value = str(self._visualizer.get_all_data())
+            value = str(1)
+            return value
+                
 
         @app.callback(
             Output("fig", "figure"),
@@ -83,9 +102,10 @@ class GUI () :
             [Output('state-dropdown', 'options'),
             Output('event_type-dropdown', 'value')],
             Input('state-dropdown', 'value'),
-            Input('event_type-dropdown', 'value')
+            Input('event_type-dropdown', 'value'),
+            Input("interval", "n_intervals")
         )
-        def update_dropdown(state_value, event_type_value):
+        def update_dropdown(state_value, event_type_value, n_intervals):
             # this will change the value of self._state when the dropdown selection changes
             self._state = state_value
             self._all_states = self._visualizer.get_all_states()

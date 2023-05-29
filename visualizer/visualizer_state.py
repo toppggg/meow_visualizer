@@ -86,6 +86,7 @@ class VisualizerState:
                 popped_visualizer_struct = self._queue.pop(visualizer_struct.event_id) # remove struct from queue dictionary
                 self._update_average_time(popped_visualizer_struct, visualizer_struct)
             except KeyError:
+                print("dequeue error")
                 pass # Defensive vs code by contract, if the key does not exist. So far defensive. Could return a debug message here.
         
 
@@ -126,8 +127,8 @@ class VisualizerState:
 
         # Sets current minute equal to the sum of seconds array [0:time_stamp]
         # Will break if we change seconds array. 
-        for index, row in self._seconds_data.iterrows():
-            self._minutes_data.loc[index, time_now_time_part] = sum(row.to_list()[:timestamp%SECONDS_IN_MINUTE])
+        # for index, row in self._seconds_data.iterrows():
+        #     self._minutes_data.loc[index, time_now_time_part] = sum(row.to_list()[:timestamp%SECONDS_IN_MINUTE])
 
         if event_types:
             return dataframe_sorted.loc[event_types]

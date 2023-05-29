@@ -25,6 +25,9 @@ from meow_base.tests.shared import setup, teardown, \
     TEST_JOB_QUEUE, TEST_JOB_OUTPUT, TEST_MONITOR_BASE, \
     APPENDING_NOTEBOOK, COMPLETE_PYTHON_SCRIPT, TEST_DIR
 
+from visualizer.visualizer import Visualizer
+from visualizer.GUI.gui import GUI
+
 
 def main():
     teardown()
@@ -64,6 +67,10 @@ def testMeowRunnerPythonExecution()->None:
 
     runner_debug_stream = io.StringIO("")
 
+    ###VIsualiZer
+    visualizer=Visualizer("end")   
+    gui = GUI(visualizer, "end")
+    
     runner = MeowRunner(
         WatchdogMonitor(
             TEST_MONITOR_BASE,
@@ -79,7 +86,8 @@ def testMeowRunnerPythonExecution()->None:
         job_output_dir=TEST_JOB_OUTPUT,
         print=runner_debug_stream,
         logging=3 ,
-        visualizer_active=True              
+        visualizer= visualizer
+                   
     )        
 
     runner.start()
@@ -129,7 +137,7 @@ def testMeowRunnerPythonExecution()->None:
                     loops = 15
             loops += 1
 
-            runner.visualizer.update()
+            # runner.visualizer.update()
             
     sleep(5)
     runner.stop()

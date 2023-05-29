@@ -5,6 +5,7 @@ import time
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+import threading
 
 from visualizer.visualizer import Visualizer
 from visualizer.visualizer_struct import VISUALIZER_STRUCT
@@ -50,29 +51,29 @@ starttime = time.time()
 #             vs3 = VISUALIZER_STRUCT("rule1",eventId3, toState1, toState2, time2 , time2, "", "OptionalInfo")
 #             visualizer.receive_channel.put(vs3)
 
-monitorevents:list[VISUALIZER_STRUCT] = []
-for j in range(1000):
-    for i in range(0,60) :
-        time1 = str(time.time())
-        id = random.randint(0,4)
-        vs1 = VISUALIZER_STRUCT("rule" + str(id), str(j)+ time1, "", toState1, time1, time1, "", "OptionalInfo")
-        visualizer.receive_channel.put(vs1)
-        monitorevents = monitorevents + [vs1]
-        time.sleep(0.2)
-    for i in monitorevents : 
-        time2 = str(time.time())
-        vs2 = VISUALIZER_STRUCT(i.event_type, i.event_id, toState1, toState2, time2, time2, "", "OptionalInfo")
+def test () : 
+    for j in range(1000):
+        monitorevents:list[VISUALIZER_STRUCT] = []
+        for i in range(0,100) :
+            time1 = str(time.time())
+            id = random.randint(0,4)
+            vs1 = VISUALIZER_STRUCT("rule", str(i)+ str(j)+ time1, "", toState1, time1, time1, "", "OptionalInfo")
+            visualizer.receive_channel.put(vs1)
+            monitorevents = monitorevents + [vs1]
         
-        visualizer.receive_channel.put(vs2)
+        for i in monitorevents : 
+            time2 = str(time.time())
+            vs2 = VISUALIZER_STRUCT("rule", i.event_id, toState1, toState2, time2, time2, "", "OptionalInfo")
+            visualizer.receive_channel.put(vs2)
         time.sleep(0.2)
 
 
+    vs3 = VISUALIZER_STRUCT("rule1",eventId2, toState2, "end", time1 , int(time.time()), "", "OptionalInfo")
+    visualizer.receive_channel.put(vs3)
+    time.sleep(3)
+    return 1
 
-    time.sleep(1)
-
-vs3 = VISUALIZER_STRUCT("rule1",eventId2, toState2, "end", time1 , int(time.time()), "", "OptionalInfo")
-visualizer.receive_channel.put(vs3)
-time.sleep(3)
-
-
+t = threading.Thread(target=test)
+t.start()
+t.join()
 
