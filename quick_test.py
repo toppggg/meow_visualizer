@@ -55,10 +55,10 @@ starttime = time.time()
 def test () : 
     for j in range(1000):
         monitorevents:list[VISUALIZER_STRUCT] = []
-        for i in range(0,100) :
+        for i in range(0,50) :
             time1 = str(time.time())
             id = random.randint(0,4)
-            vs1 = VISUALIZER_STRUCT("rule", "i" + str(i) + "j" + str(j), "", toState1, time0, time1, "", "OptionalInfo")
+            vs1 = VISUALIZER_STRUCT("rule" + str(i), "i" + str(i) + "j" + str(j), "", toState1, time0, time1, "", "OptionalInfo")
             visualizer.receive_channel.put(vs1)
             monitorevents = monitorevents + [vs1]
         

@@ -93,14 +93,14 @@ class VisualizerState:
     ### update average time for event_type
     def _update_average_time(self, popped_visualizer_struct : VISUALIZER_STRUCT, received_visualizer_struct:VISUALIZER_STRUCT) -> None:
         
-        old_n , _ = self._average_state_time[received_visualizer_struct.event_type]
+        old_n , _ = self._average_state_time[popped_visualizer_struct.event_type]
         _ , old_average = self._average_state_time[popped_visualizer_struct.event_type]
         new_n = old_n + 1
         time_this_event = float(received_visualizer_struct.event_time) - float(popped_visualizer_struct.event_time) 
         new_average_time = old_average + ((time_this_event - old_average) / new_n)
         new_tuple = (new_n, new_average_time)
 
-        self._average_state_time[received_visualizer_struct.event_type] = new_tuple
+        self._average_state_time[popped_visualizer_struct.event_type] = new_tuple
 
 
     def get_queue_data(self):
