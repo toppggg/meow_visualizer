@@ -66,7 +66,7 @@ def test () :
         #     time2 = str(time.time())
         #     vs2 = VISUALIZER_STRUCT("rule", i.event_id, toState1, toState2, time0, time2, "", "OptionalInfo")
         #     visualizer.receive_channel.put(vs2)
-        time.sleep(0.2)
+        time.sleep(0.3)
 
 
     # vs3 = VISUALIZER_STRUCT("rule1",eventId2, toState2, "end", time1 , int(time.time()), "", "OptionalInfo")
@@ -86,11 +86,11 @@ def handler() :
             time2 = str(time.time())
             vs2 = VISUALIZER_STRUCT("rule", "i" + str(i) + "j" + str(j), toState1, toState2, time0, time2, "", "OptionalInfo")
             visualizer.receive_channel.put(vs2)
-        if j < 100:
-            time.sleep(0.2)
+        # if j < 100:
+            # time.sleep(0.2)
         time.sleep(0.1) 
 
-time.sleep(5)
+# time.sleep(5)
 t2 = threading.Thread(target=handler)
 t2.start()
 

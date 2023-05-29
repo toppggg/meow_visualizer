@@ -82,12 +82,13 @@ class VisualizerState:
         assert isinstance(visualizer_struct, VISUALIZER_STRUCT) # assert that the input is of type VISUALIZER_STRUCT
         self._check_if_event_type_exists(visualizer_struct.event_type) # check if event_type exists in the average_state_time dictionary
         with self.__lock:
-            try:
-                popped_visualizer_struct = self._queue.pop(visualizer_struct.event_id) # remove struct from queue dictionary
-                self._update_average_time(popped_visualizer_struct, visualizer_struct)
-            except KeyError:
-                print("dequeue error")
-                pass # Defensive vs code by contract, if the key does not exist. So far defensive. Could return a debug message here.
+        #     try:
+            popped_visualizer_struct = self._queue.pop(visualizer_struct.event_id) # remove struct from queue dictionary
+            self._update_average_time(popped_visualizer_struct, visualizer_struct)
+            # except KeyError:
+            #     self._debug(visualizer_struct)
+            #     print("dequeue error")
+                # Defensive vs code by contract, if the key does not exist. So far defensive. Could return a debug message here.
         
 
     ### update average time for event_type

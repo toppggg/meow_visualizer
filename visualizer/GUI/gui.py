@@ -12,12 +12,12 @@ from visualizer.GUI.Idataframe_strategy.get_hours_strategy import GetHoursStrate
 
 
 class GUI () :
-    
+    _gui_states = ['show-graph', 'show-debug']
     _visualizer : IVisualizerQueryData
     _plot_thread : Thread
     _state : str
     _all_states : list[str]
-    _gui_state : IGUIDataframeStrategy
+    _gui_strategy : IGUIDataframeStrategy
     _time_options = ['Seconds', 'Minutes', 'Hours']
     _event_types : list[str]
     _unique_event_type : str
@@ -27,68 +27,106 @@ class GUI () :
         self._visualizer = visualizer
         self._state = state_name
         self._event_types = ["all"]
-        self._gui_state = GetSecondsStrategy(self._visualizer)
+        self._gui_strategy = GetSecondsStrategy(self._visualizer)
         self._unique_event_type = "all"
         self._all_states = self._visualizer.get_all_states()
-        self._plot_thread = Thread(target=self.plot).start()
+        self._gui_states = ["show-graph", "show-debug"]
+        self._plot_thread = Thread(target=self.plot)
+        self._plot_thread.start()
+        # self.states = ["show-graph", "show-debug"]
+
         
 
     def plot(self): 
         app = Dash()
-        # app = Dash(__name__, use_pages=True)
 
-        # app.layout =  html.Div([
-        #         html.H1('Multi-page app with Dash Pages'),
-
-        #     html.Div(
-        #         [
-        #             html.Div(
-        #                 dcc.Link(
-        #                     f"{page['name']} - {page['path']}", href=page["relative_path"]
-        #                 )
-        #             )
-        #             for page in dash.page_registry.values()
-        #         ]
-        #     ),
-        #          dash.page_container
-        # ])
-
-
-        app.layout = html.Div([
-            html.Div([
-            html.H2(id="count-up1"),
-            dcc.Dropdown(
-                id='state-dropdown',
-                options=[{'label': i, 'value': i} for i in self._visualizer.get_all_states()],
-                value=self._state
-            ),
-            dcc.Dropdown(
-                id='strategy-dropdown',
-                options=[{'label': i, 'value': i} for i in self._time_options],
-                value='Seconds'
-            ),
-            dcc.Dropdown(
-                id='event_type-dropdown',
-                options=[{'label': i, 'value': i} for i in self._event_types],
-                value=self._unique_event_type
-            ),
-            ]),
-            html.Div([
-                html.H1(id="count-up"),
-                dcc.Graph(id="fig"),
-                dcc.Interval(id="interval", interval=1000),
-            ]),
-            html.Div([
-                    dcc.Textarea( 
-                    id='text_field',
-                    value='input eventID',
-                    style={'width': '100%', 'height': 20}
+        def state_graphs() :
+            return html.Div([
+                html.Div([
+                html.H1(id="gui_state"),
+                dcc.Dropdown(
+                    id='graph_debug-dropdown',
+                    options=[{'label': i, 'value': i} for i in self._gui_states],
+                    value= self._gui_states[0]
                 ),
-                html.Button('Submit', id='textarea-state-example-button', n_clicks=0),
-                html.Div(id='textarea', style={'whiteSpace': 'pre-line'})        
-            ]),
-        ])
+                ]),
+                html.A(html.Button('Refresh Data'),href='/'),
+                html.Div([
+                html.H2(id="count-up1"),
+                dcc.Dropdown(
+                    id='state-dropdown',
+                    options=[{'label': i, 'value': i} for i in self._visualizer.get_all_states()],
+                    value=self._state
+                ),
+                dcc.Dropdown(
+                    id='strategy-dropdown',
+                    options=[{'label': i, 'value': i} for i in self._time_options],
+                    value='Seconds'
+                ),
+                dcc.Dropdown(
+                    id='event_type-dropdown',
+                    options=[{'label': i, 'value': i} for i in self._event_types],
+                    value=self._unique_event_type
+                ),
+                ]),
+                html.Div([
+                    html.H1(id="count-up"),
+                    dcc.Graph(id="fig"),
+                    dcc.Interval(id="interval", interval=1000),
+                ]),
+                html.Div([
+                        dcc.Textarea( 
+                        id='text_field',
+                        value='input eventID',
+                        style={'width': '100%', 'height': 20}
+                    ),
+                    html.Button('Submit', id='textarea-state-example-button', n_clicks=0),
+                    html.Div(id='textarea', style={'whiteSpace': 'pre-line'})        
+                ]),
+            ])
+
+        def state_debug():
+            debugmessages = self._visualizer.get_debug_messages()
+            debug_list = []
+            # debug_list = []
+            for message in debugmessages :
+                debug_list += [str(message)]
+            # final_list = str(debug_list)
+
+            
+            return html.Div([
+                html.Div([
+                html.H1(id="gui_state"),
+                dcc.Dropdown(
+                    id='graph_debug-dropdown',
+                    options=[{'label': i, 'value': i} for i in self._gui_states],
+                    value= self._gui_states[1]
+                    )
+                ]),
+                html.A(html.Button('Refresh Data'),href='/'),
+                html.Div(id='textarea', style={'whiteSpace': 'pre-line'}, children= debugmessages)
+            ])
         
+        
+
+        
+        
+        @app.callback(
+        Output('graph_debug-dropdown', 'value'),
+        Input('graph_debug-dropdown', 'value')
+        )
+        def update_dropdown(value):
+            # this will change the value of self._state when the dropdown selection changes
+            # ["show-graph", "show-debug"]
+            match value :
+                case 'show-graph' :
+                    app.layout = state_graphs()
+                case 'show-debug' :
+                    app.layout = state_debug()
+                case _ :
+                    pass
+            return value
+
 
         @app.callback(
             Output("textarea", "children"),
@@ -111,9 +149,9 @@ class GUI () :
         def update_figure(n_intervals):
             # print(self._gui_state)
             if self._unique_event_type == "all" :
-                df = self._gui_state.get_data(self._state, [])
+                df = self._gui_strategy.get_data(self._state, [])
             else :
-                df = self._gui_state.get_data(self._state, [self._unique_event_type])
+                df = self._gui_strategy.get_data(self._state, [self._unique_event_type])
             if df is not None :
                 
                 fig = px.bar(df, labels={
@@ -149,9 +187,9 @@ class GUI () :
             # this will change the value of self._state when the dropdown selection changes
             match value :
                 case 'Seconds' :
-                    self._gui_state = GetSecondsStrategy(self._visualizer)
+                    self._gui_strategy = GetSecondsStrategy(self._visualizer)
                 case 'Minutes' :
-                    self._gui_state = GetMinutesStrategy(self._visualizer)
+                    self._gui_strategy = GetMinutesStrategy(self._visualizer)
                 case _ :
                     pass
             return value
@@ -165,4 +203,6 @@ class GUI () :
             print(value)
             self._event_types = ["all"] + list(self._visualizer.get_event_average_time_in_state(self._state).keys())
             return [{'label': i, 'value': i} for i in self._event_types]
+        
+        app.layout = state_graphs()
         app.run()
