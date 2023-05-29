@@ -23,6 +23,7 @@ time1 = int(time.time())-2
 
 toState1 = "Monitor"
 toState2 = "Handler"
+toState3 = "end"
 
 visualizer._visualizer_states[toState1] = VisualizerState(toState1)
 visualizer._visualizer_states[toState2] = VisualizerState(toState2)
@@ -31,7 +32,7 @@ visualizer._visualizer_states[toState2] = VisualizerState(toState2)
 # gui = Spam(visualizer)
 gui = GUI(visualizer, toState1)
 
-
+time0 = str(time.time())
 counter = 0
 starttime = time.time()
 # for i in range(0,60):
@@ -57,23 +58,60 @@ def test () :
         for i in range(0,100) :
             time1 = str(time.time())
             id = random.randint(0,4)
-            vs1 = VISUALIZER_STRUCT("rule", str(i)+ str(j)+ time1, "", toState1, time1, time1, "", "OptionalInfo")
+            vs1 = VISUALIZER_STRUCT("rule", "i" + str(i) + "j" + str(j), "", toState1, time0, time1, "", "OptionalInfo")
             visualizer.receive_channel.put(vs1)
             monitorevents = monitorevents + [vs1]
         
-        for i in monitorevents : 
-            time2 = str(time.time())
-            vs2 = VISUALIZER_STRUCT("rule", i.event_id, toState1, toState2, time2, time2, "", "OptionalInfo")
-            visualizer.receive_channel.put(vs2)
+        # for i in monitorevents : 
+        #     time2 = str(time.time())
+        #     vs2 = VISUALIZER_STRUCT("rule", i.event_id, toState1, toState2, time0, time2, "", "OptionalInfo")
+        #     visualizer.receive_channel.put(vs2)
         time.sleep(0.2)
 
 
-    vs3 = VISUALIZER_STRUCT("rule1",eventId2, toState2, "end", time1 , int(time.time()), "", "OptionalInfo")
-    visualizer.receive_channel.put(vs3)
-    time.sleep(3)
+    # vs3 = VISUALIZER_STRUCT("rule1",eventId2, toState2, "end", time1 , int(time.time()), "", "OptionalInfo")
+    # visualizer.receive_channel.put(vs3)
+    # time.sleep(3)
     return 1
 
 t = threading.Thread(target=test)
 t.start()
+
+def handler() :
+    # time.sleep(8)
+    for j in range(1000):
+        time.sleep(0.1)    
+        # print("79")
+        for i in range(0,50) :
+            time2 = str(time.time())
+            vs2 = VISUALIZER_STRUCT("rule", "i" + str(i) + "j" + str(j), toState1, toState2, time0, time2, "", "OptionalInfo")
+            visualizer.receive_channel.put(vs2)
+        if j < 100:
+            time.sleep(0.2)
+        time.sleep(0.1) 
+
+time.sleep(5)
+t2 = threading.Thread(target=handler)
+t2.start()
+
+def end() :
+    # time.sleep(8)
+    for j in range(1000):
+        time.sleep(0.2)    
+        # print("79")
+        for i in range(0,40) :
+            time2 = str(time.time())
+            vs2 = VISUALIZER_STRUCT("rule", "i" + str(i) + "j" + str(j), toState2, toState3, time0, time2, "", "OptionalInfo")
+            visualizer.receive_channel.put(vs2)
+        if j < 100:
+            time.sleep(0.3)
+
+time.sleep(3)
+t3 = threading.Thread(target=end)
+t3.start()
+
+
 t.join()
+t2.join()
+t3.join()
 

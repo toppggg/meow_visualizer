@@ -1,5 +1,6 @@
 import plotly.express as px
-from dash import Dash, dcc, html, Input, Output
+from dash import Dash, dcc, html, Input, Output, State
+import dash
 from threading import Thread
 import pandas as pd
 
@@ -34,6 +35,25 @@ class GUI () :
 
     def plot(self): 
         app = Dash()
+        # app = Dash(__name__, use_pages=True)
+
+        # app.layout =  html.Div([
+        #         html.H1('Multi-page app with Dash Pages'),
+
+        #     html.Div(
+        #         [
+        #             html.Div(
+        #                 dcc.Link(
+        #                     f"{page['name']} - {page['path']}", href=page["relative_path"]
+        #                 )
+        #             )
+        #             for page in dash.page_registry.values()
+        #         ]
+        #     ),
+        #          dash.page_container
+        # ])
+
+
         app.layout = html.Div([
             html.Div([
             html.H2(id="count-up1"),
@@ -58,25 +78,30 @@ class GUI () :
                 dcc.Graph(id="fig"),
                 dcc.Interval(id="interval", interval=1000),
             ]),
-            # html.Div([
-            #         id='textarea',
-            #         value='Textarea content initialized\nwith multiple lines of text',
-            #         style={'width': '100%', 'height': 300},
-            # ),
-            html.Div(id='textarea', style={'whiteSpace': 'pre-line'})
+            html.Div([
+                    dcc.Textarea( 
+                    id='text_field',
+                    value='input eventID',
+                    style={'width': '100%', 'height': 20}
+                ),
+                html.Button('Submit', id='textarea-state-example-button', n_clicks=0),
+                html.Div(id='textarea', style={'whiteSpace': 'pre-line'})        
+            ]),
         ])
         
 
         @app.callback(
             Output("textarea", "children"),
-            Input("interval", "n_intervals")
+            Input('textarea-state-example-button', 'n_clicks'),
+            State("text_field", "value")
         )
-        def update_text_field (n_intervals) :  #job_asyxlKbuWUin
-            states = self._visualizer.get_all_states()
-            # self._visualizer.get_event_id(value)
+        def update_text_field (n_clicks, value) :  #job_asyxlKbuWUin
+            # states = self._visualizer.get_all_states()
+            result = str(self._visualizer.get_event_id(value))
             # value = str(self._visualizer.get_all_data())
-            value = str(1)
-            return value
+            # value = str(1)
+            
+            return result
                 
 
         @app.callback(
