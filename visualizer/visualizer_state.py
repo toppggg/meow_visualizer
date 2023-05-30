@@ -13,6 +13,7 @@ class VisualizerState:
     _last_update_time : int
     _queue : dict[VISUALIZER_STRUCT.event_id, VISUALIZER_STRUCT]
     _average_state_time:dict[VISUALIZER_STRUCT.event_type,(int,float)] # value is number of events and average time
+    _events_pr_rule_in_state:dict[VISUALIZER_STRUCT.event_type,int] # value is number of events in the state
     _seconds_data: pd.DataFrame
     _minutes_data: pd.DataFrame
     __lock = threading.Lock()
@@ -23,6 +24,7 @@ class VisualizerState:
         self._hours_data = pd.DataFrame(columns=[i for i in range(0,HOURS_IN_DAY)])
         self._queue = {}
         self._average_state_time = {}
+        self._events_pr_rule_in_state = {}
         self.name = name
         self._last_update_time = int(time.time()) 
         
@@ -37,24 +39,24 @@ class VisualizerState:
     def _update_seconds_array(self, update_time : int) -> None :
         if (update_time // SECONDS_IN_MINUTE) - (self._last_update_time // SECONDS_IN_MINUTE) > 0 : # 6067//60 - 6046//60 = 101 - 100 = 1
             #nulstil resten af arrayet
-            self._seconds_data[(self._last_update_time % SECONDS_IN_MINUTE) + 1: SECONDS_IN_MINUTE - 1] = 0
-            # for i in range ((self._last_update_time % SECONDS_IN_MINUTE) + 1, SECONDS_IN_MINUTE): 
-            #     self._seconds_data[i] = 0   #set the subsequent seconds to 0, since nothing was received
+            # self._seconds_data[(self._last_update_time % SECONDS_IN_MINUTE) + 1: SECONDS_IN_MINUTE - 1] = 0
+            for i in range ((self._last_update_time % SECONDS_IN_MINUTE) + 1, SECONDS_IN_MINUTE): 
+                self._seconds_data[i] = 0   #set the subsequent seconds to 0, since nothing was received
             self._convert_to_minutes(update_time)
             if (update_time // SECONDS_IN_MINUTE - self._last_update_time // SECONDS_IN_MINUTE > 1 ) \
                 or (update_time % SECONDS_IN_MINUTE >= self._last_update_time % SECONDS_IN_MINUTE) : 
-                self._seconds_data[0: (self._last_update_time % SECONDS_IN_MINUTE)] = 0
-                # for i in range (0, (self._last_update_time % SECONDS_IN_MINUTE) + 1) : # more than a min has passed, reset everything
-                #     self._seconds_data[i] = 0
+                # self._seconds_data[0: (self._last_update_time % SECONDS_IN_MINUTE)] = 0
+                for i in range (0, (self._last_update_time % SECONDS_IN_MINUTE) + 1) : # more than a min has passed, reset everything
+                    self._seconds_data[i] = 0
             else :
-                self._seconds_data[0: (update_time % SECONDS_IN_MINUTE)] = 0
-                # for i in range(0, (update_time % SECONDS_IN_MINUTE) + 1) :
-                #     self._seconds_data[i] = 0
+                # self._seconds_data[0: (update_time % SECONDS_IN_MINUTE)] = 0
+                for i in range(0, (update_time % SECONDS_IN_MINUTE) + 1) :
+                    self._seconds_data[i] = 0
         else:
             #nulstil indtil update_time
-            self._seconds_data[(self._last_update_time + 1) % SECONDS_IN_MINUTE: (update_time % SECONDS_IN_MINUTE)] = 0
-            # for i in range((self._last_update_time + 1) % SECONDS_IN_MINUTE, (update_time % SECONDS_IN_MINUTE) + 1) :
-            #     self._seconds_data[i] = 0
+            # self._seconds_data[(self._last_update_time + 1) % SECONDS_IN_MINUTE: (update_time % SECONDS_IN_MINUTE)] = 0
+            for i in range((self._last_update_time + 1) % SECONDS_IN_MINUTE, (update_time % SECONDS_IN_MINUTE) + 1) :
+                self._seconds_data[i] = 0
 
 
     def enqueue(self, visualizer_struct: VISUALIZER_STRUCT):
@@ -62,6 +64,8 @@ class VisualizerState:
         self._queue[visualizer_struct.event_id] = visualizer_struct # add struct to queue dictionary
         self._check_if_event_type_exists(visualizer_struct.event_type)
         self._update()
+        with self.__lock:
+            self._events_pr_rule_in_state[visualizer_struct.event_type] += 1
         if self._last_update_time // SECONDS_IN_MINUTE > int(float(visualizer_struct.event_time)) // SECONDS_IN_MINUTE:
             self._back_dated_event(visualizer_struct)
         else:
@@ -89,6 +93,7 @@ class VisualizerState:
         #     try:
             popped_visualizer_struct = self._queue.pop(visualizer_struct.event_id) # remove struct from queue dictionary
             self._update_average_time(popped_visualizer_struct, visualizer_struct)
+            self._events_pr_rule_in_state[popped_visualizer_struct.event_type] -= 1
             # except KeyError:
             #     self._debug(visualizer_struct)
             #     print("dequeue error")
@@ -123,6 +128,10 @@ class VisualizerState:
                 except KeyError:
                     continue
         return result
+    
+    def get_events_in_state_by_rule(self) -> dict[VISUALIZER_STRUCT.event_type, (int,float)] : 
+        # if not event_types:
+        return self._events_pr_rule_in_state  
 
     def get_minutes_data(self, event_types : list[VISUALIZER_STRUCT.event_type]) -> pd.DataFrame :
         timestamp = int(time.time())
