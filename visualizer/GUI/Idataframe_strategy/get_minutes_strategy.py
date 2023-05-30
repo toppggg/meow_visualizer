@@ -20,8 +20,8 @@ class GetMinutesStrategy(IGUIDataframeStrategy):
             for i in range (1, MINUTES_IN_HOUR):
                 xs[i] = dt.datetime.fromtimestamp(time_this_round- (SECONDS_IN_HOUR - SECONDS_IN_MINUTE * (i+1))).strftime('%H:%M')
 
-            result.insert(0, 'Time', xs)
-
+            # result.insert(0, 'Time', xs)
+            result['Time'] = xs
             result.set_index('Time', inplace=True)
 
 

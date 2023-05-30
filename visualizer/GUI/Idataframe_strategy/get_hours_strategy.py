@@ -20,7 +20,8 @@ class GetHoursStrategy(IGUIDataframeStrategy):
             for i in range (0, HOURS_IN_DAY):
                 xs[i] = dt.datetime.fromtimestamp(time_this_round - (SECONDS_IN_DAY - SECONDS_IN_HOUR * i)).strftime('%D:%H')
 
-            result.insert(0, 'Time', xs)
+            # result.insert(0, 'Time', xs)
+            result['Time'] = xs
 
             result.set_index('Time', inplace=True)
 
