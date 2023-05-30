@@ -3,6 +3,7 @@ from dash import Dash, dcc, html, Input, Output, State
 import dash
 from threading import Thread
 import pandas as pd
+import datetime as dt
 
 from visualizer.i_visualizer_query_data import IVisualizerQueryData
 from visualizer.GUI.Idataframe_strategy.i_dataframe_strategy import IGUIDataframeStrategy
@@ -90,7 +91,7 @@ class GUI () :
             debug_list = []
             # debug_list = []
             for message in debugmessages :
-                debug_list += [str(message)]
+                debug_list += [dt.datetime.fromtimestamp(float(message.event_time)).strftime('%H:%M:%S') + ";   " + message.event_id + ";   " + message.debug_message]
             # final_list = str(debug_list)
 
             
@@ -104,7 +105,7 @@ class GUI () :
                     )
                 ]),
                 html.A(html.Button('Refresh Data'),href='/'),
-                html.Div(id='textarea', style={'whiteSpace': 'pre-line'}, children= debugmessages)
+                html.Div(id='textarea', style={'whiteSpace': 'pre-line'}, children= [html.Div(i) for i in debug_list])
             ])
         
         
