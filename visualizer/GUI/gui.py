@@ -13,7 +13,7 @@ from visualizer.GUI.Idataframe_strategy.get_hours_strategy import GetHoursStrate
 
 
 class GUI () :
-    _gui_states = ['show-graph', 'show-debug']
+    _gui_states : list[str]
     _visualizer : IVisualizerQueryData
     _plot_thread : Thread
     _state : str
@@ -31,11 +31,35 @@ class GUI () :
         self._gui_strategy = GetSecondsStrategy(self._visualizer)
         self._unique_event_type = "all"
         self._all_states = self._visualizer.get_all_states()
-        self._gui_states = ["show-graph", "show-debug"]
+        self._gui_states = ["show-graph", "show-debug", "show-unique-id"]
         self._plot_thread = Thread(target=self.plot)
-        self._plot_thread.start()
-        # self.states = ["show-graph", "show-debug"]
 
+        self._plot_thread.start() #dont add things after the threat is started, might result in unexpected behaviour
+
+    def event_type_stats(self) -> list[str] :
+        stats = []
+        average_time_dict = {}
+        if self._unique_event_type == "all" :
+                average_time_dict = self._visualizer.get_event_average_time_in_state(self._state)
+        else :
+            average_time_dict = self._visualizer.get_event_average_time_in_state(self._state,[self._unique_event_type])
+        #         df = self._gui_strategy.get_data(self._state, [self._unique_event_type])
+        # average_time_dict = self._visualizer.get_event_average_time_in_state(self._state)
+
+        events_in_state = self._visualizer.get_events_in_state(self._state)
+        if self._unique_event_type == "all" :
+            event_types = self._event_types
+        else : 
+            event_types = [self._unique_event_type]
+        for event_type in event_types :
+                # print(event_type)
+            if event_type != "all" :
+                combined_info = str(event_type).ljust(20, '_') + "|" + str(events_in_state[event_type]).rjust(19, '_') + "|" + str(average_time_dict[event_type][0]).rjust(19, '_') + "|" + str(round(average_time_dict[event_type][1],3)).rjust(10, '_') + "s"
+                
+                stats = stats + [combined_info] 
+
+        return stats
+        
         
 
     def plot(self): 
@@ -75,15 +99,17 @@ class GUI () :
                     dcc.Graph(id="fig"),
                     dcc.Interval(id="interval", interval=1000),
                 ]),
-                html.Div([
-                        dcc.Textarea( 
-                        id='text_field',
-                        value='input eventID',
-                        style={'width': '100%', 'height': 20}
-                    ),
-                    html.Button('Submit', id='textarea-state-example-button', n_clicks=0),
-                    html.Div(id='textarea', style={'whiteSpace': 'pre-line'})        
-                ]),
+
+                html.Div(id='stats', style={'whiteSpace': 'pre-wrap'})
+                # html.Div([
+                #         dcc.Textarea( 
+                #         id='text_field',
+                #         value='input eventID',
+                #         style={'width': '100%', 'height': 20}
+                #     ),
+                #     html.Button('Submit', id='textarea-state-example-button', n_clicks=0),
+                #     html.Div(id='textarea', style={'whiteSpace': 'pre-line'})        
+                # ]),
             ])
 
         def state_debug():
@@ -108,6 +134,29 @@ class GUI () :
                 html.Div(id='textarea', style={'whiteSpace': 'pre-line'}, children= [html.Div(i) for i in debug_list])
             ])
         
+        def search_id():
+            return html.Div([
+                html.Div([
+                html.H1(id="gui_state"),
+                dcc.Dropdown(
+                    id='graph_debug-dropdown',
+                    options=[{'label': i, 'value': i} for i in self._gui_states],
+                    value= self._gui_states[1]
+                    )
+                ]),
+                html.A(html.Button('Refresh Data'),href='/'),
+                html.H2(id="search for event id"),
+                html.Div([
+                        dcc.Textarea( 
+                        id='text_field',
+                        value='input eventID',
+                        style={'width': '100%', 'height': 20}
+                    ),
+                    html.Button('Submit', id='textarea-state-example-button', n_clicks=0),
+                    html.Div(id='textarea', style={'whiteSpace': 'pre-line'})        
+                ]),
+                # html.Div(id='textarea', style={'whiteSpace': 'pre-line'}, children= [html.Div(i) for i in debug_list])
+            ])
         
 
         
@@ -124,6 +173,8 @@ class GUI () :
                     app.layout = state_graphs()
                 case 'show-debug' :
                     app.layout = state_debug()
+                case 'show-unique-id' :
+                    app.layout = search_id()
                 case _ :
                     pass
             return value
@@ -160,7 +211,13 @@ class GUI () :
                 })
                 
                 return fig
-    
+
+        @app.callback(
+            Output("stats", "children"),
+            Input("interval", "n_intervals")
+        )
+        def update_stats(n_intervals):
+            return  [html.Div("Event_type".ljust(20, '_') +"| currently in state".ljust(25, '_') + "| events complete ".ljust(23, '_') + "| average time in state (for complete events)", style={'whiteSpace': 'pre-wrap'} )]+ [html.Div(i, style={'whiteSpace': 'pre-wrap'} ) for i in self.event_type_stats()]
 
         @app.callback(
             [Output('state-dropdown', 'options'),

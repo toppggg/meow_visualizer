@@ -64,6 +64,8 @@ class VisualizerState:
         self._queue[visualizer_struct.event_id] = visualizer_struct # add struct to queue dictionary
         self._check_if_event_type_exists(visualizer_struct.event_type)
         self._update()
+        if self._events_pr_rule_in_state.get(visualizer_struct.event_type) is None:
+            self._events_pr_rule_in_state[visualizer_struct.event_type] = 0
         with self.__lock:
             self._events_pr_rule_in_state[visualizer_struct.event_type] += 1
         if self._last_update_time // SECONDS_IN_MINUTE > int(float(visualizer_struct.event_time)) // SECONDS_IN_MINUTE:

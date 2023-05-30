@@ -112,6 +112,10 @@ class Visualizer(IVisualizerReceiveData, IVisualizerQueryData) :
             return visualizer_state.get_average_time(event_types)
         except:
             return {}
+    
+    def get_events_in_state(self,state_name : str) -> dict[VISUALIZER_STRUCT.event_type,int] :
+        visualizer_state = self._visualizer_states[state_name]
+        return visualizer_state.get_events_in_state_by_rule()
 
 
 
