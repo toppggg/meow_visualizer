@@ -39,24 +39,37 @@ class Visualizer(IVisualizerReceiveData, IVisualizerQueryData) :
     
     ### Add event to visualizer_state, if the state does not exist, add the event to debug_struct ###
     def _add_event(self, visualizer_struct: VISUALIZER_STRUCT) -> None :
-        if (visualizer_struct.current_state not in self._visualizer_states) :
-            self._visualizer_states[visualizer_struct.current_state] = VisualizerState(visualizer_struct.current_state)
+        if self._check_valid_transition(visualizer_struct):
+    
+            if visualizer_struct.current_state not in self._visualizer_states :
+                self._visualizer_states[visualizer_struct.current_state] = VisualizerState(visualizer_struct.current_state)
 
-        visualizer_ToState = self._visualizer_states[visualizer_struct.current_state]
-        visualizer_ToState.enqueue(visualizer_struct)
+            visualizer_ToState = self._visualizer_states[visualizer_struct.current_state]
+            visualizer_ToState.enqueue(visualizer_struct)
 
-        if (visualizer_struct.previous_state != "") : #Check if previous state is not set.
-            try: # Check if previous state exists
-                visualizer_FromState = self._visualizer_states[visualizer_struct.previous_state]   
-            except:
-                visualizer_struct.debug_message = "Previous state does not exist"
-                self._debug_data.add_debug_struct(visualizer_struct)
-            try: # Try to remove event from previous state
-                visualizer_FromState.dequeue(visualizer_struct)
-            except:
-                visualizer_struct.debug_message = "Event does not exist in previous state"
-                self._debug_data.add_debug_struct(visualizer_struct)
-
+            if (visualizer_struct.previous_state != "") : #Check if previous state is not set.
+                try: # Check if previous state exists
+                    visualizer_FromState = self._visualizer_states[visualizer_struct.previous_state]   
+                except:
+                    visualizer_struct.debug_message = "Previous state does not exist"
+                    self._debug_data.add_debug_struct(visualizer_struct)
+                try: # Try to remove event from previous state
+                    visualizer_FromState.dequeue(visualizer_struct)
+                except:
+                    visualizer_struct.debug_message = "Event does not exist in previous state"
+                    self._debug_data.add_debug_struct(visualizer_struct)
+            
+    def _check_valid_transition(self, visualizer_struct: VISUALIZER_STRUCT) -> None :
+        if (visualizer_struct.previous_state != "" or visualizer_struct.current_state != "") and visualizer_struct.event_time != "":
+            result = True
+        elif visualizer_struct.debug_message != "" : 
+            self._debug_data.add_debug_struct(visualizer_struct)
+            result = False
+        else : 
+            visualizer_struct.debug_message = "Event does not contain current or previous states."
+            self._debug_data.add_debug_struct(visualizer_struct)
+            result = False
+        return result
         
     
     ### Read from pipe, check that input is actually VISUALIZER_STRUCT, and pass events to _add_event ###
@@ -162,7 +175,7 @@ class Visualizer(IVisualizerReceiveData, IVisualizerQueryData) :
             return visualizer_struct
         except:
             debug_struct = VISUALIZER_STRUCT(event_time = time.time())
-            debug_struct.debug_message = "Input is not of type VISUALIZER_STRUCT, input found in optional_info"
+            debug_struct.debug_message = "Input is not of type VISUALIZER_STRUCT, input placed in optional_info: "
             debug_struct.optional_info = str(pipe_data)
             self._debug_data.add_debug_struct(debug_struct)   
             return None 
