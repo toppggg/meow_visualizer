@@ -117,7 +117,7 @@ class GUI () :
             debug_list = []
             # debug_list = []
             for message in debugmessages :
-                debug_list += [dt.datetime.fromtimestamp(float(message.event_time)).strftime('%H:%M:%S') + ";  " + str(message)]
+                debug_list += [str(message)]
             # final_list = str(debug_list)
 
             
