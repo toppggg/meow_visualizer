@@ -9,6 +9,9 @@ class IGUIDataframeStrategy :
     def get_data(self, state : str, event_type : list[str] = []) -> pd.DataFrame :
         """ Return strategy defined dataframe from the state, containing events grouped by event_type """
 
+
+    # Method is unsued since we wanted to create a table instead of appending
+    # to dataframe/graph
     """Appends total finished count and average time to column titels"""
     def setAverage (self, df : pd.DataFrame, state, event_type : list[str]  = []) -> pd.DataFrame: 
         if event_type :

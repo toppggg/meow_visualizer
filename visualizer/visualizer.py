@@ -126,11 +126,10 @@ class Visualizer(IVisualizerReceiveData, IVisualizerQueryData) :
         except:
             return {}
     
-    def get_events_in_state(self,state_name : str) -> dict[VISUALIZER_STRUCT.event_type,int] :
+    def count_events_by_rule_in_state(self,state_name : str) -> dict[VISUALIZER_STRUCT.event_type,int] :
         visualizer_state = self._visualizer_states[state_name]
         return visualizer_state.get_events_in_state_by_rule()
-
-
+    
 
     def get_event_average_live_time(self, event_types :list[VISUALIZER_STRUCT.event_type] = []) \
             ->  dict[VISUALIZER_STRUCT.event_type, (int,float)]:
@@ -162,6 +161,11 @@ class Visualizer(IVisualizerReceiveData, IVisualizerQueryData) :
             result[state.name] = state._queue
         return result
 
+    def get_events_in_state (self, state_name : str) -> list[VISUALIZER_STRUCT] :
+        if state_name in self.get_all_states() :
+            return list(self._visualizer_states[state_name]._queue.values())
+        else: 
+            return []
 
     ### Auxiliary methods ###
     

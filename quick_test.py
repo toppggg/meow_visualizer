@@ -35,24 +35,8 @@ gui = GUI(visualizer, toState1)
 time0 = str(time.time())
 counter = 0
 starttime = time.time()
-# for i in range(0,60):
-#     for j in range(0,random.randint(0,10)):
-#         counter += 1
-#         time2 = int(time.time())
-#         eventId1 = "event" + str(j)
-#         eventId2 = "event" + str(j) + str(j)
-#         eventId3 = "event" + str(j) + str(j) + str(j)
-#         vs1 = VISUALIZER_STRUCT("rule2",eventId1, "", toState1, time2, time2, "", "OptionalInfo")
-#         vs2 = VISUALIZER_STRUCT("rule1",eventId2, "", toState1, time2, time2, "", "OptionalInfo")
-#         vs3 = VISUALIZER_STRUCT("rule3",eventId3, "", toState1, time2, time2, "", "OptionalInfo")
-#         visualizer.receive_channel.put(vs1)
-#         visualizer.receive_channel.put(vs2)
-#         visualizer.receive_channel.put(vs3)
-#         if random.randint(0,2):
-#             vs3 = VISUALIZER_STRUCT("rule1",eventId3, toState1, toState2, time2 , time2, "", "OptionalInfo")
-#             visualizer.receive_channel.put(vs3)
 
-def test () : 
+def monitor () : 
     for j in range(1000):
         monitorevents:list[VISUALIZER_STRUCT] = []
         for i in range(0,50) :
@@ -63,26 +47,16 @@ def test () :
                 visualizer.receive_channel.put(vs1)
                 monitorevents = monitorevents + [vs1]
         
-        # for i in monitorevents : 
-        #     time2 = str(time.time())
-        #     vs2 = VISUALIZER_STRUCT("rule", i.event_id, toState1, toState2, time0, time2, "", "OptionalInfo")
-        #     visualizer.receive_channel.put(vs2)
         time.sleep(0.2)
 
-
-    # vs3 = VISUALIZER_STRUCT("rule1",eventId2, toState2, "end", time1 , int(time.time()), "", "OptionalInfo")
-    # visualizer.receive_channel.put(vs3)
-    # time.sleep(3)
     return 1
 
-t = threading.Thread(target=test)
+t = threading.Thread(target=monitor)
 t.start()
 
 def handler() :
-    # time.sleep(8)
     for j in range(1000):
         time.sleep(0.1)    
-        # print("79")
         for i in range(0,50) :
             if random.randint(0,30) < 20 :
                 time2 = str(time.time())
@@ -100,7 +74,6 @@ def end() :
     # time.sleep(8)
     for j in range(1000):
         time.sleep(0.2)    
-        # print("79")
         if random.randint(0,3) < 2 :
             for i in range(0,40) :
                 time2 = str(time.time())

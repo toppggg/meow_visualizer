@@ -28,6 +28,11 @@ from meow_base.tests.shared import setup, teardown, \
 from visualizer.visualizer import Visualizer
 from visualizer.GUI.gui import GUI
 
+###need to add the path to the meow folder
+#export PYTHONPATH=$PYTHONPATH:/full/path/to/meow_visualizer/
+
+
+
 
 def main():
     teardown()

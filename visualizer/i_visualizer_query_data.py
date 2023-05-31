@@ -34,5 +34,7 @@ class IVisualizerQueryData :
         """ Return the updatetime """
     def get_all_states() -> list[str] :
         """ Return all states in visualizer """
-    def get_events_in_state(state_name : str) -> dict[VISUALIZER_STRUCT.event_type,int] :
+    def count_events_by_rule_in_state(state_name : str) -> dict[VISUALIZER_STRUCT.event_type,int] :
         """ Return number of events in a state """
+    def get_events_in_state (state_name : str) -> list[VISUALIZER_STRUCT] :
+        """ Return all events in a state """
