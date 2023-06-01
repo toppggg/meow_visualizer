@@ -278,6 +278,8 @@ class GUI () :
                     self._gui_strategy = GetSecondsStrategy(self._visualizer)
                 case 'Minutes' :
                     self._gui_strategy = GetMinutesStrategy(self._visualizer)
+                case 'Hours' :
+                    self._gui_strategy = GetHoursStrategy(self._visualizer)
                 case _ :
                     pass
             return value
