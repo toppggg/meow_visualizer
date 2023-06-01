@@ -1,20 +1,16 @@
 import io
 import os
-# import unittest
 import sys
 import random as rand
-
-sys.path.append("C:\\Users\\Johan\OneDrive\\Universitet\\Datalogi\\6. semester\\Bachelor\\meow")
-
-# set PYTHONPATH=%PYTHONPATH%;C:\path\to\project\
-
 from time import sleep
+
+from visualizer.visualizer import Visualizer
+from visualizer.GUI.gui import GUI
+
 from meow_base.core.base_conductor import BaseConductor
 from meow_base.core.base_handler import BaseHandler
 from meow_base.core.base_monitor import BaseMonitor
 from meow_base.conductors import LocalPythonConductor
-# from meow_base.core.correctness.vars import get_result_file, \
-#     JOB_TYPE_PAPERMILL, JOB_ERROR, META_FILE, JOB_TYPE_PYTHON, JOB_CREATE_TIME
 from meow_base.core.runner import MeowRunner
 from meow_base.functionality.file_io import make_dir, read_file, read_notebook, read_yaml
 from meow_base.patterns.file_event_pattern import WatchdogMonitor, FileEventPattern
@@ -25,11 +21,18 @@ from meow_base.tests.shared import setup, teardown, \
     TEST_JOB_QUEUE, TEST_JOB_OUTPUT, TEST_MONITOR_BASE, \
     APPENDING_NOTEBOOK, COMPLETE_PYTHON_SCRIPT, TEST_DIR
 
-from visualizer.visualizer import Visualizer
-from visualizer.GUI.gui import GUI
 
-###need to add the path to the meow folder
+###need to add the path to the meow for imports to work.
+# can be done in wsl/linux with:
+
+#nano ~/.bashrc
+
+#add the following line to the end of the file:
 #export PYTHONPATH=$PYTHONPATH:/full/path/to/meow_visualizer/
+#save and exit
+
+# then run:
+#source ~/.bashrc
 
 
 
