@@ -155,7 +155,6 @@ class EventQueueDataTest(unittest.TestCase):
     @patch('time.time', return_value=int(1000000))
     def testBackDatedEventIsAddedToCorrectHoursDF(self, mock_time):
         visualizer_state = VisualizerState("testState")
-        print(time.time())
         start_time = mock_time.return_value
         visualizer_state._last_update_time = start_time
         vs = VISUALIZER_STRUCT("rule1","idnr1", "", "Monitor", start_time, start_time, "random message", "OptionalInfo")
@@ -163,10 +162,8 @@ class EventQueueDataTest(unittest.TestCase):
         visualizer_state._minutes_data.loc[vs.event_type] = [0] * 60
         visualizer_state._hours_data.loc[vs.event_type] = [0] * 24
 
-        mock_time.return_value = 1003700
+        mock_time.return_value = start_time + SECONDS_IN_DAY + 70 
         visualizer_state.enqueue(vs)
-        
-        print(time.time())
         
         self.assertAlmostEqual(visualizer_state._seconds_data.loc[vs.event_type].sum(),0)
         self.assertAlmostEqual(visualizer_state._minutes_data.loc[vs.event_type].sum(), 0)

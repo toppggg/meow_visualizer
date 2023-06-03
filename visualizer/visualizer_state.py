@@ -239,9 +239,9 @@ class VisualizerState:
             #nulstil indtil update_time
             for i in range(last_update_time+1, (update_time % ARRAY_SIZE) + 1) :
                     self._hours_data[i] = 0
-    def _convert_to_day():
+    def _convert_to_day(self, input_update_time) -> None:
         pass
-        #identical to the _convert_to_minutes function just with 
+        #identical to the _convert_to_hours function just with days in a month. obs, if it should be designed with months of different array length. 
     def _convert_to_month():
         pass
     def _convert_to_year():
@@ -263,9 +263,9 @@ class VisualizerState:
     def _back_dated_event(self, visualizer_struct: VISUALIZER_STRUCT) -> None:
         update_time = self._last_update_time
         event_time = int(float(visualizer_struct.event_time))
-        if event_time // SECONDS_IN_DAY - update_time // SECONDS_IN_DAY > 1:
+        if event_time // SECONDS_IN_DAY - update_time // SECONDS_IN_DAY < 0:
             pass #Add to day array and potentially to hours array.
-        elif event_time // SECONDS_IN_HOUR - update_time // SECONDS_IN_HOUR > 1: 
+        if event_time // SECONDS_IN_HOUR - update_time // SECONDS_IN_HOUR < 0 :  
             with self.__lock:
                 self._hours_data.loc[visualizer_struct.event_type, ((int(float(visualizer_struct.event_time)) // SECONDS_IN_HOUR) % HOURS_IN_DAY)] += 1
                 if update_time - event_time <= SECONDS_IN_MINUTE:
