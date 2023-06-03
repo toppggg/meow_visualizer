@@ -63,7 +63,7 @@ class EventQueueDataTest(unittest.TestCase):
         visualizer_state.enqueue(vs)
         
         self.assertIn(test_event_type,visualizer_state._average_state_time)
-        self.assertEqual(visualizer_state._average_state_time[test_event_type], initial_averagetime) 
+        self.assertAlmostEqual(visualizer_state._average_state_time[test_event_type], initial_averagetime) 
 
 
     ### Test that event_type is added to DataFrame _seconds_array###
@@ -92,8 +92,23 @@ class EventQueueDataTest(unittest.TestCase):
         vs = VISUALIZER_STRUCT(test_event_type,event_id, "", "Monitor", time1, time1, "random message", "OptionalInfo")
         visualizer_state.enqueue(vs)
         
-        self.assertIn(test_event_type,visualizer_state._minutes_data.index)           
+        self.assertIn(test_event_type,visualizer_state._minutes_data.index)     
+
+    ### Test that event_type is added to DataFrame _hours_array###
+    def testEnqueueAddEventTypeToHoursDF(self) :
+        time1 = str(time.time())
+        event_id = "idnr1"
+        test_event_type = "event1"
+        visualizer_state = VisualizerState("testState")
+
+        self.assertNotIn(test_event_type,visualizer_state._hours_data.index)
+        
+        vs = VISUALIZER_STRUCT(test_event_type,event_id, "", "Monitor", time1, time1, "random message", "OptionalInfo")
+        visualizer_state.enqueue(vs)
+        
+        self.assertIn(test_event_type,visualizer_state._hours_data.index)        
             
+    ### Test that a new event_type beging registered, creates a new entry in _average_state_time###
     def testEnqueueCreatesAverageTimeForEventType(self) :
         time1 = time.time()
         eventId = "idnr1"
@@ -106,3 +121,19 @@ class EventQueueDataTest(unittest.TestCase):
         visualizer_state.enqueue(vs)
 
         self.assertIn(test_event_type,visualizer_state._average_state_time)
+
+
+    def testCreateAverageTimeForEventTypeSetsTupleToZero(self) :
+        time1 = time.time()
+        eventId = "idnr1"
+        test_event_type = "event1"
+        visualizer_state = VisualizerState("testState")
+
+        self.assertNotIn(test_event_type,visualizer_state._average_state_time)
+        
+        vs = VISUALIZER_STRUCT(test_event_type,eventId, "", "Monitor", str(time1 - 200), str(time1), "random message", "OptionalInfo")
+        visualizer_state.enqueue(vs)
+
+        self.assertIn(test_event_type,visualizer_state._average_state_time)
+        self.assertAlmostEqual(visualizer_state._average_state_time[test_event_type][0], 0)
+        self.assertAlmostEqual(visualizer_state._average_state_time[test_event_type][1], 0.0)

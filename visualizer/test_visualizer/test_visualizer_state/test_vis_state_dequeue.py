@@ -21,6 +21,7 @@ class EventQueueDataTest(unittest.TestCase):
 
         visualizer_state._queue[eventId] = dequeue_struct
         visualizer_state._average_state_time[dequeue_struct.event_type] = (0,0.0)
+        visualizer_state._events_pr_type_in_state[dequeue_struct.event_type] = 1
         self.assertIn(dequeue_struct.event_type,visualizer_state._average_state_time) #arrange
         self.assertIn(dequeue_struct,visualizer_state._queue.values()) #arrange
 
@@ -53,6 +54,7 @@ class EventQueueDataTest(unittest.TestCase):
         visualizer_state = VisualizerState("testState")
         visualizer_state._queue[event_id1] = vsIn
         visualizer_state._average_state_time[vsIn.event_type] = (0,0.0)
+        visualizer_state._events_pr_type_in_state[vsIn.event_type] = 1
         
         self.assertAlmostEqual(visualizer_state._average_state_time[vsOut.event_type][1], 0.0)
         self.assertEqual(visualizer_state._average_state_time[vsOut.event_type][0], 0)
@@ -74,6 +76,7 @@ class EventQueueDataTest(unittest.TestCase):
         visualizer_state = VisualizerState("testState")
         visualizer_state._average_state_time[vsIn.event_type] = (1,2.0)
         visualizer_state._queue[event_id1] = vsIn
+        visualizer_state._events_pr_type_in_state[vsIn.event_type] = 1
 
         self.assertAlmostEqual(visualizer_state._average_state_time[vsOut.event_type][1], (2.0))
         self.assertEqual(visualizer_state._average_state_time[vsOut.event_type][0], 1)
