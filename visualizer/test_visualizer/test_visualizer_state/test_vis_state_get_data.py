@@ -1,3 +1,4 @@
+from unittest.mock import patch
 import unittest
 import time
 import pandas as pd
@@ -18,7 +19,7 @@ class EventQueueDataTest(unittest.TestCase):
     def TestInit(self):
         visualizer_state = VisualizerState("monitor")
 
-        self.assertEqual(visualizer_state.name, "monitor")
+        self.assertAlmostEqual(visualizer_state.name, "monitor")
 
 
     ### return all visualizer structs from the queueu
@@ -44,7 +45,10 @@ class EventQueueDataTest(unittest.TestCase):
 
     ### Test for Seconds Array
 
-    def testGetSecondsArray (self):
+    @patch.object(time, 'time')
+    # def test_method1(self, mock_time):
+    def testGetSecondsArray (self, mock_time):
+        mock_time = mock_time = time.time()
         visualizer_state = VisualizerState("testState")
         start_time = int(time.time())
         visualizer_state._last_update_time = start_time
@@ -73,7 +77,9 @@ class EventQueueDataTest(unittest.TestCase):
         self.assertCountEqual(vs3_array, returnval.loc[vs3.event_type])
 
 
-    def testGetSecondsArrayOneEventType (self):
+    @patch.object(time, 'time')
+    def testGetSecondsArrayOneEventType (self, mock_time):
+        mock_time = time.time()
         visualizer_state = VisualizerState("testState")
         start_time = int(time.time())
         visualizer_state._last_update_time = start_time
@@ -104,7 +110,9 @@ class EventQueueDataTest(unittest.TestCase):
         self.assertNotIn(event2, returnval.index)
         self.assertNotIn(event3, returnval.index)
 
-    def testGetSecondsArrayMultipleEventTypes (self):
+    @patch.object(time, 'time')
+    def testGetSecondsArrayMultipleEventTypes (self, mock_time):
+        mock_time = time.time()
         visualizer_state = VisualizerState("testState")
         start_time = int(time.time())
         visualizer_state._last_update_time = start_time

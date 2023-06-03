@@ -13,7 +13,7 @@ class VisualizerState:
     _last_update_time : int
     _queue : dict[VISUALIZER_STRUCT.event_id, VISUALIZER_STRUCT]
     _average_state_time:dict[VISUALIZER_STRUCT.event_type,(int,float)] # value is number of events and average time
-    _events_pr_rule_in_state:dict[VISUALIZER_STRUCT.event_type,int] # value is number of events in the state
+    _events_pr_type_in_state:dict[VISUALIZER_STRUCT.event_type,int] # value is number of events in the state
     _seconds_data: pd.DataFrame
     _minutes_data: pd.DataFrame
     __lock = threading.Lock()
@@ -24,7 +24,7 @@ class VisualizerState:
         self._hours_data = pd.DataFrame(columns=[i for i in range(0,HOURS_IN_DAY)])
         self._queue = {}
         self._average_state_time = {}
-        self._events_pr_rule_in_state = {}
+        self._events_pr_type_in_state = {}
         self.name = name
         self._last_update_time = int(time.time()) 
         
@@ -64,10 +64,10 @@ class VisualizerState:
         self._queue[visualizer_struct.event_id] = visualizer_struct # add struct to queue dictionary
         self._check_if_event_type_exists(visualizer_struct.event_type)
         self._update()
-        if self._events_pr_rule_in_state.get(visualizer_struct.event_type) is None:
-            self._events_pr_rule_in_state[visualizer_struct.event_type] = 0
+        if self._events_pr_type_in_state.get(visualizer_struct.event_type) is None:
+            self._events_pr_type_in_state[visualizer_struct.event_type] = 0
         with self.__lock:
-            self._events_pr_rule_in_state[visualizer_struct.event_type] += 1
+            self._events_pr_type_in_state[visualizer_struct.event_type] += 1
         if self._last_update_time // SECONDS_IN_MINUTE > int(float(visualizer_struct.event_time)) // SECONDS_IN_MINUTE:
             self._back_dated_event(visualizer_struct)
         else:
@@ -82,7 +82,7 @@ class VisualizerState:
             self._seconds_data.loc[event_type] = [0]*SECONDS_IN_MINUTE
         if event_type not in self._minutes_data.index:            
             self._minutes_data.loc[event_type] = [0]*MINUTES_IN_HOUR
-        if event_type not in self._minutes_data.index:      
+        if event_type not in self._hours_data.index:      
             self._hours_data.loc[event_type] = [0]*HOURS_IN_DAY
         if event_type not in self._average_state_time:
             self._average_state_time[event_type] = (0,0.0)
@@ -95,7 +95,7 @@ class VisualizerState:
         #     try:
             popped_visualizer_struct = self._queue.pop(visualizer_struct.event_id) # remove struct from queue dictionary
             self._update_average_time(popped_visualizer_struct, visualizer_struct)
-            self._events_pr_rule_in_state[popped_visualizer_struct.event_type] -= 1
+            self._events_pr_type_in_state[popped_visualizer_struct.event_type] -= 1
             # except KeyError:
             #     self._debug(visualizer_struct)
             #     print("dequeue error")
@@ -131,9 +131,9 @@ class VisualizerState:
                     continue
         return result
     
-    def get_events_in_state_by_rule(self) -> dict[VISUALIZER_STRUCT.event_type, (int,float)] : 
+    def get_events_in_state_by_type(self) -> dict[VISUALIZER_STRUCT.event_type, (int,float)] : 
         # if not event_types:
-        return self._events_pr_rule_in_state  
+        return self._events_pr_type_in_state  
 
     def get_minutes_data(self, event_types : list[VISUALIZER_STRUCT.event_type]) -> pd.DataFrame :
         timestamp = int(time.time())

@@ -128,7 +128,7 @@ class Visualizer(IVisualizerReceiveData, IVisualizerQueryData) :
     
     def count_events_by_rule_in_state(self,state_name : str) -> dict[VISUALIZER_STRUCT.event_type,int] :
         visualizer_state = self._visualizer_states[state_name]
-        return visualizer_state.get_events_in_state_by_rule()
+        return visualizer_state.get_events_in_state_by_type()
     
 
     def get_event_average_live_time(self, event_types :list[VISUALIZER_STRUCT.event_type] = []) \
