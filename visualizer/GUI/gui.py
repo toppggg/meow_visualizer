@@ -52,9 +52,11 @@ class GUI () :
         for event_type in event_types :
 
             if event_type != "all" :
-                combined_info = str(event_type).ljust(20, '_') + "|" + str(events_in_state[event_type]).rjust(19, '_') + "|" + str(average_time_dict[event_type][0]).rjust(19, '_') + "|" + str(round(average_time_dict[event_type][1],3)).rjust(10, '_') + "s"
-                
-                stats = stats + [combined_info] 
+                try:
+                    combined_info = str(event_type).ljust(25, ' ') + "|" + str(events_in_state[event_type]).rjust(25, ' ') + "|" + str(average_time_dict[event_type][0]).rjust(25, ' ') + "|" + str(round(average_time_dict[event_type][1],3)).rjust(25, ' ') + "s"
+                    stats = stats + [combined_info] 
+                except:
+                    continue                            
 
         return stats
         
@@ -62,9 +64,11 @@ class GUI () :
 
     def plot(self): 
         app = Dash()
+        
 
         def state_graphs() :
             return html.Div([
+                
                 html.Div([
                 html.H1(id="gui_state"),
                 dcc.Dropdown(
@@ -239,7 +243,11 @@ class GUI () :
             Input("interval", "n_intervals")
         )
         def update_stats(n_intervals):
-            return  [html.Div("Event_type".ljust(20, '_') +"| currently in state".ljust(25, '_') + "| events complete ".ljust(23, '_') + "| average time in state (for complete events)", style={'whiteSpace': 'pre-wrap'} )]+ [html.Div(i, style={'whiteSpace': 'pre-wrap'} ) for i in self.event_type_stats()]
+            return  [html.Div("Event_type".ljust(25, ' ') +"| currently in state".ljust(26, ' ') 
+                + "| events completed ".ljust(26, ' ') 
+                + "| average time in state (for completed events)", style={'whiteSpace': 'pre-wrap', 'font-family':'monospace'} )] \
+                + [html.Div("-"*123, style={'whiteSpace': 'pre-wrap', 'font-family':'monospace'})]\
+                + [html.Div(i, style={'whiteSpace': 'pre-wrap', 'font-family':'monospace'}) for i in self.event_type_stats()]
 
         @app.callback(
             [Output('state-dropdown', 'options'),
@@ -270,6 +278,8 @@ class GUI () :
                     self._gui_strategy = GetSecondsStrategy(self._visualizer)
                 case 'Minutes' :
                     self._gui_strategy = GetMinutesStrategy(self._visualizer)
+                case 'Hours' :
+                    self._gui_strategy = GetHoursStrategy(self._visualizer)
                 case _ :
                     pass
             return value

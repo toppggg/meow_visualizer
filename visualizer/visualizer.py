@@ -101,8 +101,15 @@ class Visualizer(IVisualizerReceiveData, IVisualizerQueryData) :
         
         
     def get_hours_data(self, state_name : str, event_types: list[VISUALIZER_STRUCT.event_type] = []) -> pd.DataFrame :
-        # Hours array not implemented, but is identical to minutes array
-        pass
+        try:
+            visualizer_state = self._visualizer_states[state_name]
+            result = visualizer_state.get_hours_data(event_types)
+            self.visualizer_update_time = visualizer_state.get_time()
+            return result
+        except:
+            return None
+        
+
     def get_days_data(self, state_name : str, event_types: list[VISUALIZER_STRUCT.event_type] = []) -> pd.DataFrame :
         # days array not implemented, but is identical to minutes array
         pass

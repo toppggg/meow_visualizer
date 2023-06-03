@@ -16,6 +16,7 @@ class VisualizerState:
     _events_pr_type_in_state:dict[VISUALIZER_STRUCT.event_type,int] # value is number of events in the state
     _seconds_data: pd.DataFrame
     _minutes_data: pd.DataFrame
+    _hours_data: pd.DataFrame
     __lock = threading.Lock()
 
     def __init__(self, name: str):
@@ -78,10 +79,10 @@ class VisualizerState:
     #Create DataFrame if it is the first event of that type
     def _check_if_event_type_exists(self, event_type):
         if event_type not in self._seconds_data.index  :  
-
             self._seconds_data.loc[event_type] = [0]*SECONDS_IN_MINUTE
         if event_type not in self._minutes_data.index:            
             self._minutes_data.loc[event_type] = [0]*MINUTES_IN_HOUR
+        if event_type not in self._hours_data.index:      
         if event_type not in self._hours_data.index:      
             self._hours_data.loc[event_type] = [0]*HOURS_IN_DAY
         if event_type not in self._average_state_time:
@@ -92,7 +93,6 @@ class VisualizerState:
         assert isinstance(visualizer_struct, VISUALIZER_STRUCT) # assert that the input is of type VISUALIZER_STRUCT
         self._check_if_event_type_exists(visualizer_struct.event_type) # check if event_type exists in the average_state_time dictionary
         with self.__lock:
-        #     try:
             popped_visualizer_struct = self._queue.pop(visualizer_struct.event_id) # remove struct from queue dictionary
             self._update_average_time(popped_visualizer_struct, visualizer_struct)
             self._events_pr_type_in_state[popped_visualizer_struct.event_type] -= 1
@@ -165,7 +165,22 @@ class VisualizerState:
 
 
     def get_hours_data(self, event_types:list[VISUALIZER_STRUCT.event_type]) -> pd.DataFrame :
-        pass # TODO: implement, 
+        timestamp = int(time.time())
+        self._update()
+        time_now_time_part = (timestamp // SECONDS_IN_HOUR )% HOURS_IN_DAY 
+        dataframe_sorted = self._aux_return_df_order_by_timestamp(time_now_time_part, self._hours_data)
+
+        # Sets current minute equal to the sum of seconds array [0:time_stamp]
+        # will do equivalent part for the hours array
+        for index, row in self._seconds_data.iterrows():
+            self._minutes_data.loc[index, time_now_time_part] = sum(row.to_list()[:timestamp%SECONDS_IN_MINUTE])
+        for index, row in self._minutes_data.iterrows() :
+            self._hours_data.loc[index, time_now_time_part] = sum(row.to_list()[:(timestamp // SECONDS_IN_MINUTE) % MINUTES_IN_HOUR])
+        if event_types:
+            return dataframe_sorted.loc[event_types]
+        else:
+            return dataframe_sorted
+        
     def get_days_data(self, event_types:list[VISUALIZER_STRUCT.event_type]) -> pd.DataFrame :
         pass
     def get_months_data(self, event_types:list[VISUALIZER_STRUCT.event_type]) -> pd.DataFrame :
@@ -173,8 +188,8 @@ class VisualizerState:
 
     def get_years_data(self, event_types:list[VISUALIZER_STRUCT.event_type]) -> pd.DataFrame : 
         pass
-    def _convert_to_minutes(self, update_time) -> None :
-        update_time = update_time // SECONDS_IN_MINUTE
+    def _convert_to_minutes(self, input_update_time) -> None :
+        update_time = input_update_time // SECONDS_IN_MINUTE
         last_update_time = self._last_update_time // SECONDS_IN_MINUTE
         ARRAY_SIZE = MINUTES_IN_HOUR
         
@@ -186,7 +201,7 @@ class VisualizerState:
             #nulstil resten af arrayet
             for i in range ((last_update_time % ARRAY_SIZE) + 1, ARRAY_SIZE): 
                 self._minutes_data[i] = 0   #set the subsequent seconds to 0, since nothing was received
-            self._convert_to_hour(update_time)
+            self._convert_to_hour(input_update_time)
             if (update_time // ARRAY_SIZE - last_update_time // ARRAY_SIZE > 1 ) or \
                 (update_time % ARRAY_SIZE >= last_update_time % MINUTES_IN_HOUR) : 
                 for i in range (0, (last_update_time % ARRAY_SIZE) + 1) : # more than a min has passed, reset everything
@@ -199,11 +214,31 @@ class VisualizerState:
             for i in range(last_update_time+1, (update_time % ARRAY_SIZE) + 1) :
                     self._minutes_data[i] = 0
 
-    def _convert_to_hour(self,update_time) -> None:
-        #store the last 60 minutes in the hour array in static memory
-        #otherwise identical to the _convert_to_minutes function just with arraysize = MINUTES_IN_HOUR (= 24), 
-        #and then it should call the _convert_to_day function
-        pass
+    def _convert_to_hour(self,input_update_time) -> None:
+        update_time = input_update_time // SECONDS_IN_HOUR
+        last_update_time = self._last_update_time // SECONDS_IN_HOUR
+        ARRAY_SIZE = HOURS_IN_DAY
+        
+        ### this may not work, there are not test for this yet.
+        for index, row in self._minutes_data.iterrows():
+            self._hours_data.loc[index][last_update_time % HOURS_IN_DAY] = row.sum()
+        
+        if (update_time // ARRAY_SIZE) - (last_update_time // ARRAY_SIZE) > 0 : # update has passed a new min.
+            #nulstil resten af arrayet
+            for i in range ((last_update_time % ARRAY_SIZE) + 1, ARRAY_SIZE): 
+                self._hours_data[i] = 0   #set the subsequent seconds to 0, since nothing was received
+            self._convert_to_day(input_update_time)
+            if (update_time // ARRAY_SIZE - last_update_time // ARRAY_SIZE > 1 ) or \
+                (update_time % ARRAY_SIZE >= last_update_time % HOURS_IN_DAY) : 
+                for i in range (0, (last_update_time % ARRAY_SIZE) + 1) : # more than a min has passed, reset everything
+                    self._hours_data[i] = 0
+            else :
+                for i in range(0, (update_time % ARRAY_SIZE) + 1) :
+                    self._hours_data[i] = 0
+        else:
+            #nulstil indtil update_time
+            for i in range(last_update_time+1, (update_time % ARRAY_SIZE) + 1) :
+                    self._hours_data[i] = 0
     def _convert_to_day():
         pass
         #identical to the _convert_to_minutes function just with 
