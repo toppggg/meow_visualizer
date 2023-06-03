@@ -195,7 +195,7 @@ class VisualizerState:
         
         ### this may not work, there are not test for this yet.
         for index, row in self._seconds_data.iterrows():
-            self._minutes_data.loc[index][last_update_time % MINUTES_IN_HOUR] = row.sum()
+            self._minutes_data.loc[index, last_update_time % MINUTES_IN_HOUR] = row.sum()
         
         if (update_time // ARRAY_SIZE) - (last_update_time // ARRAY_SIZE) > 0 : # update has passed a new min.
             #nulstil resten af arrayet
@@ -221,7 +221,7 @@ class VisualizerState:
         
         ### this may not work, there are not test for this yet.
         for index, row in self._minutes_data.iterrows():
-            self._hours_data.loc[index][last_update_time % HOURS_IN_DAY] = row.sum()
+            self._hours_data.loc[index, last_update_time % HOURS_IN_DAY] = row.sum()
         
         if (update_time // ARRAY_SIZE) - (last_update_time // ARRAY_SIZE) > 0 : # update has passed a new min.
             #nulstil resten af arrayet
@@ -271,7 +271,8 @@ class VisualizerState:
                 if update_time - event_time <= SECONDS_IN_MINUTE:
                     self._seconds_data.loc[visualizer_struct.event_type, (int(float(visualizer_struct.event_time)) % SECONDS_IN_MINUTE)] += 1
                 if (update_time - event_time) <= SECONDS_IN_HOUR:
-                    self._minutes_data.loc[visualizer_struct.event_type, ((int(float(visualizer_struct.event_time))// SECONDS_IN_MINUTE) % MINUTES_IN_HOUR)] += 1        else:
+                    self._minutes_data.loc[visualizer_struct.event_type, ((int(float(visualizer_struct.event_time))// SECONDS_IN_MINUTE) % MINUTES_IN_HOUR)] += 1
+        else:
             with self.__lock:
                 self._minutes_data.loc[visualizer_struct.event_type, ((int(float(visualizer_struct.event_time)) // SECONDS_IN_MINUTE) % MINUTES_IN_HOUR)] += 1
                 if update_time - event_time <= SECONDS_IN_MINUTE:
