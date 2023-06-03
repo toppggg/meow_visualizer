@@ -82,7 +82,7 @@ class VisualizerState:
             self._seconds_data.loc[event_type] = [0]*SECONDS_IN_MINUTE
         if event_type not in self._minutes_data.index:            
             self._minutes_data.loc[event_type] = [0]*MINUTES_IN_HOUR
-        if event_type not in self._hours_data.index:      
+        # if event_type not in self._hours_data.index:      
         if event_type not in self._hours_data.index:      
             self._hours_data.loc[event_type] = [0]*HOURS_IN_DAY
         if event_type not in self._average_state_time:

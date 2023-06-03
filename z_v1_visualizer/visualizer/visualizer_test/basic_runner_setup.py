@@ -26,24 +26,16 @@ from meow_base.tests.shared import setup, teardown, \
     TEST_JOB_QUEUE, TEST_JOB_OUTPUT, TEST_MONITOR_BASE, \
     APPENDING_NOTEBOOK, COMPLETE_PYTHON_SCRIPT, TEST_DIR
 
+from visualizer.visualizer import Visualizer
+from visualizer.GUI.gui import GUI
 
 ###need to add the path to the meow for imports to work.
 # can be done in wsl/linux with:
 
 #nano ~/.bashrc
 
-###need to add the path to the meow for imports to work.
-# can be done in wsl/linux with:
-
-#nano ~/.bashrc
-
-#add the following line to the end of the file:
 #add the following line to the end of the file:
 #export PYTHONPATH=$PYTHONPATH:/full/path/to/meow_visualizer/
-#save and exit
-
-# then run:
-#source ~/.bashrc
 #save and exit
 
 # then run:
