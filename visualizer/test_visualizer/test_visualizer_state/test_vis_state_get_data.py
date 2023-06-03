@@ -146,22 +146,24 @@ class EventQueueDataTest(unittest.TestCase):
 
     ### test if getting a dataframe ordered by timestamp returns the correct dataframe.
     def testAuxReturnDFOrderedByTimeStamp(self):
-        # Test DataFrame as created in VisualizerState
-        data = {'event_type': ['event1', 'event2', 'event3']}
+        # # Test DataFrame as created in VisualizerState
+        data = {'event_type': ['event1', 'event2', 'event3'] }
         for i in range(60):
             data[str(i)] = [i, i+1, i+2]
-        df = pd.DataFrame(data)
+        df = pd.DataFrame(data).set_index('event_type')
+
+        # # Expected DataFrame
+        expected_data = {'event_type': ['event1', 'event2', 'event3'] }
+        for i in range(31, 60) : expected_data[str(i)] = [i, i+1, i+2] 
+        for i in range(31) : expected_data[str(i)] = [i, i+1, i+2] 
+        
+        expected_df = pd.DataFrame(expected_data).set_index('event_type')
 
         timestamp = 30
-        # Expected DataFrame
-        expected_data = {str(i): [i, i+1, i+2] for i in range(31, 60)}
-        expected_data['event_type'] = ['event1', 'event2', 'event3']
-        expected_data.update({str(i): [i, i+1, i+2] for i in range(31)})
-        expected_df = pd.DataFrame(expected_data)
+        visualizer_state = VisualizerState("testState")
+        result = visualizer_state._aux_return_df_order_by_timestamp(dataframe = df, timestamp = timestamp)
 
-        result = VisualizerState._aux_return_df_ordered_by_timestamp(df, timestamp)
-
-        pd.testing.assert_frame_equal(expected_df,result)
+        pd.testing.assert_frame_equal(expected_df, result)
 
 
     def testGetTime(self):
