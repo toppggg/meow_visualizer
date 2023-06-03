@@ -29,17 +29,17 @@ from meow_base.tests.shared import setup, teardown, \
 from visualizer.visualizer import Visualizer
 from visualizer.GUI.gui import GUI
 
-###need to add the path to the meow for imports to work.
+# ##need to add the path to the meow for imports to work.
 # can be done in wsl/linux with:
 
-#nano ~/.bashrc
+# nano ~/.bashrc
 
-#add the following line to the end of the file:
-#export PYTHONPATH=$PYTHONPATH:/full/path/to/meow_visualizer/
-#save and exit
+# add the following line to the end of the file:
+# export PYTHONPATH=$PYTHONPATH:/full/path/to/meow_visualizer/
+# save and exit
 
 # then run:
-#source ~/.bashrc
+# source ~/.bashrc
 
 
 

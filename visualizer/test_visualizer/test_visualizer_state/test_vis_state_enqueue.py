@@ -1,8 +1,10 @@
+from unittest.mock import patch
 import unittest
 import time
 
 from visualizer.visualizer_struct import VISUALIZER_STRUCT
 from visualizer.visualizer_state import VisualizerState
+from visualizer.vars import SECONDS_IN_MINUTE, MINUTES_IN_HOUR, HOURS_IN_DAY, SECONDS_IN_HOUR, SECONDS_IN_DAY
 
 
 class EventQueueDataTest(unittest.TestCase):
@@ -35,19 +37,6 @@ class EventQueueDataTest(unittest.TestCase):
 
         self.assertIn(vs,visualizer_state._queue.values())        
 
-    # def testEnqueueWrongType(self) :
-    #     time1 = str(time.time())
-    #     eventId = "idnr1"
-    #     vs = ("random info", eventId, "", "Monitor", time1, time1, "random message", "OptionalInfo", "")
-    #     visualizer_state = VisualizerState("testState")
-    #     jnr = JupyterNotebookRecipe("recipe", BAREBONES_NOTEBOOK)
-    #     self.assertNotIn(vs,visualizer_state._queue)       
-
-    #     with self.assertRaises(TypeError):
-    #             visualizer_state.enqueue(jnr)               
-
-    #     self.assertNotIn(vs, visualizer_state._queue)       
-
 
     ## enqueue does not update average time
     def testEnqueueAverageTimeUnchanged (self) :
@@ -59,7 +48,8 @@ class EventQueueDataTest(unittest.TestCase):
         initial_averagetime = (0,2.0)
         visualizer_state._average_state_time[test_event_type] = initial_averagetime
         
-        vs = VISUALIZER_STRUCT(test_event_type, eventId, "", "Monitor", str(time1 - 200), str(time1), "random message", "OptionalInfo")
+        vs = VISUALIZER_STRUCT(test_event_type, eventId, "", "Monitor",
+                                str(time1 - 200), str(time1), "random message", "OptionalInfo")
         visualizer_state.enqueue(vs)
         
         self.assertIn(test_event_type,visualizer_state._average_state_time)
@@ -75,7 +65,8 @@ class EventQueueDataTest(unittest.TestCase):
 
         self.assertNotIn(event_id,visualizer_state._seconds_data.index)
         
-        vs = VISUALIZER_STRUCT(test_event_type,event_id, "", "Monitor", time1, time1, "random message", "OptionalInfo")
+        vs = VISUALIZER_STRUCT(test_event_type,event_id, "", "Monitor",
+                                time1, time1, "random message", "OptionalInfo")
         visualizer_state.enqueue(vs)
         
         self.assertIn(test_event_type,visualizer_state._seconds_data.index)   
@@ -89,7 +80,8 @@ class EventQueueDataTest(unittest.TestCase):
 
         self.assertNotIn(test_event_type,visualizer_state._minutes_data.index)
         
-        vs = VISUALIZER_STRUCT(test_event_type,event_id, "", "Monitor", time1, time1, "random message", "OptionalInfo")
+        vs = VISUALIZER_STRUCT(test_event_type,event_id, "", "Monitor",
+                                time1, time1, "random message", "OptionalInfo")
         visualizer_state.enqueue(vs)
         
         self.assertIn(test_event_type,visualizer_state._minutes_data.index)     
@@ -103,7 +95,8 @@ class EventQueueDataTest(unittest.TestCase):
 
         self.assertNotIn(test_event_type,visualizer_state._hours_data.index)
         
-        vs = VISUALIZER_STRUCT(test_event_type,event_id, "", "Monitor", time1, time1, "random message", "OptionalInfo")
+        vs = VISUALIZER_STRUCT(test_event_type,event_id, "", "Monitor",
+                                time1, time1, "random message", "OptionalInfo")
         visualizer_state.enqueue(vs)
         
         self.assertIn(test_event_type,visualizer_state._hours_data.index)        
@@ -117,7 +110,8 @@ class EventQueueDataTest(unittest.TestCase):
 
         self.assertNotIn(test_event_type,visualizer_state._average_state_time)
         
-        vs = VISUALIZER_STRUCT(test_event_type,eventId, "", "Monitor", str(time1 - 200), str(time1), "random message", "OptionalInfo")
+        vs = VISUALIZER_STRUCT(test_event_type,eventId, "", "Monitor", \
+                               str(time1 - 200), str(time1), "random message", "OptionalInfo")
         visualizer_state.enqueue(vs)
 
         self.assertIn(test_event_type,visualizer_state._average_state_time)
@@ -131,9 +125,49 @@ class EventQueueDataTest(unittest.TestCase):
 
         self.assertNotIn(test_event_type,visualizer_state._average_state_time)
         
-        vs = VISUALIZER_STRUCT(test_event_type,eventId, "", "Monitor", str(time1 - 200), str(time1), "random message", "OptionalInfo")
+        vs = VISUALIZER_STRUCT(test_event_type,eventId, "", "Monitor", \
+                               str(time1 - 200), str(time1), "random message", "OptionalInfo")
         visualizer_state.enqueue(vs)
 
         self.assertIn(test_event_type,visualizer_state._average_state_time)
         self.assertAlmostEqual(visualizer_state._average_state_time[test_event_type][0], 0)
         self.assertAlmostEqual(visualizer_state._average_state_time[test_event_type][1], 0.0)
+
+
+    # @patch('time.sleep', return_value=[int(time.time()- 5),int(time.time())])
+    @patch('time.time', return_value=int(1000000))
+    def testBackDatedEventIsAddedToCorrectMinutesDF(self, mock_time):
+        visualizer_state = VisualizerState("testState")
+        start_time = mock_time.return_value
+        visualizer_state._last_update_time = start_time
+        vs = VISUALIZER_STRUCT("rule1","idnr1", "", "Monitor", start_time, start_time, "random message", "OptionalInfo")
+        visualizer_state._seconds_data.loc[vs.event_type] = [0] * 60
+        visualizer_state._minutes_data.loc[vs.event_type] = [0] * 60
+        visualizer_state._hours_data.loc[vs.event_type] = [0] * 24
+        mock_time.return_value = start_time + 70
+        visualizer_state.enqueue(vs)
+        
+        self.assertAlmostEqual(visualizer_state._seconds_data.loc[vs.event_type].sum(),0)
+        self.assertAlmostEqual(visualizer_state._minutes_data.loc[vs.event_type]\
+                               [(start_time // SECONDS_IN_MINUTE) % MINUTES_IN_HOUR], 1)
+        # self.assertAlmostEqual(visualizer_state._hours_data.loc[vs.event_type][(start_time // SECONDS_IN_HOUR) % HOURS_IN_DAY], 0)
+
+    @patch('time.time', return_value=int(1000000))
+    def testBackDatedEventIsAddedToCorrectHoursDF(self, mock_time):
+        visualizer_state = VisualizerState("testState")
+        print(time.time())
+        start_time = mock_time.return_value
+        visualizer_state._last_update_time = start_time
+        vs = VISUALIZER_STRUCT("rule1","idnr1", "", "Monitor", start_time, start_time, "random message", "OptionalInfo")
+        visualizer_state._seconds_data.loc[vs.event_type] = [0] * 60
+        visualizer_state._minutes_data.loc[vs.event_type] = [0] * 60
+        visualizer_state._hours_data.loc[vs.event_type] = [0] * 24
+
+        mock_time.return_value = 1003700
+        visualizer_state.enqueue(vs)
+        
+        print(time.time())
+        
+        self.assertAlmostEqual(visualizer_state._seconds_data.loc[vs.event_type].sum(),0)
+        self.assertAlmostEqual(visualizer_state._minutes_data.loc[vs.event_type].sum(), 0)
+        self.assertAlmostEqual(visualizer_state._hours_data.loc[vs.event_type][(start_time // SECONDS_IN_HOUR) % HOURS_IN_DAY], 1)
