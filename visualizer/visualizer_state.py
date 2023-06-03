@@ -266,7 +266,12 @@ class VisualizerState:
         if event_time // SECONDS_IN_DAY - update_time // SECONDS_IN_DAY > 1:
             pass #Add to day array and potentially to hours array.
         elif event_time // SECONDS_IN_HOUR - update_time // SECONDS_IN_HOUR > 1: 
-            pass # Add to Hour array and potential minutes array
+            with self.__lock:
+                self._hours_data.loc[visualizer_struct.event_type, ((int(float(visualizer_struct.event_time)) // SECONDS_IN_HOUR) % HOURS_IN_DAY)] += 1
+                if update_time - event_time <= SECONDS_IN_MINUTE:
+                    self._seconds_data.loc[visualizer_struct.event_type, (int(float(visualizer_struct.event_time)) % SECONDS_IN_MINUTE)] += 1
+                if (update_time - event_time) <= SECONDS_IN_HOUR:
+                    self._minutes_data.loc[visualizer_struct.event_type, ((int(float(visualizer_struct.event_time))// SECONDS_IN_MINUTE) % MINUTES_IN_HOUR)] += 1
         else:
             with self.__lock:
                 self._minutes_data.loc[visualizer_struct.event_type, ((int(float(visualizer_struct.event_time)) // SECONDS_IN_MINUTE) % MINUTES_IN_HOUR)] += 1
