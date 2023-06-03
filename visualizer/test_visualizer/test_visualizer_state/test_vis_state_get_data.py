@@ -144,9 +144,48 @@ class EventQueueDataTest(unittest.TestCase):
         self.assertCountEqual(vs2_array, returnval.loc[vs2.event_type])
         self.assertNotIn(event3, returnval.index)
 
+    ### test if getting a dataframe ordered by timestamp returns the correct dataframe.
+    def testAuxReturnDFOrderedByTimeStamp(self):
+        # Test DataFrame as created in VisualizerState
+        data = {'event_type': ['event1', 'event2', 'event3']}
+        for i in range(60):
+            data[str(i)] = [i, i+1, i+2]
+        df = pd.DataFrame(data)
+
+        timestamp = 30
+        # Expected DataFrame
+        expected_data = {str(i): [i, i+1, i+2] for i in range(31, 60)}
+        expected_data['event_type'] = ['event1', 'event2', 'event3']
+        expected_data.update({str(i): [i, i+1, i+2] for i in range(31)})
+        expected_df = pd.DataFrame(expected_data)
+
+        result = VisualizerState._aux_return_df_ordered_by_timestamp(df, timestamp)
+
+        pd.testing.assert_frame_equal(expected_df,result)
 
 
+    def testGetTime(self):
+        visualizer_state = VisualizerState("testState")
+        time1 = time.time()
+        visualizer_state._last_update_time = time1
 
+        #assert
+        self.assertAlmostEqual(visualizer_state.get_time(), time1)
+
+    def testGetEventsByTypeSingleEvent(self):
+        event1 = "event1"
+        visualizer_state = VisualizerState("testState")
+        visualizer_state._events_pr_type_in_state[event1] = 1
+        visualizer_struct = VISUALIZER_STRUCT(event1, "idnr1", "", "Monitor", str(time.time()), str(time.time()), "random message", "OptionalInfo")
+
+        #arrange
+        visualizer_state._queue[event1] = visualizer_struct
+
+        #act
+        result = visualizer_state.get_event_id(event1)
+
+        #assert
+        self.assertEqual(result, visualizer_struct)
 
         
 

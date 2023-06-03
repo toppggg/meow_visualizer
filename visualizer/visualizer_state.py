@@ -39,23 +39,21 @@ class VisualizerState:
 
     def _update_seconds_array(self, update_time : int) -> None :
         if (update_time // SECONDS_IN_MINUTE) - (self._last_update_time // SECONDS_IN_MINUTE) > 0 : # 6067//60 - 6046//60 = 101 - 100 = 1
-            #nulstil resten af arrayet
-            # self._seconds_data[(self._last_update_time % SECONDS_IN_MINUTE) + 1: SECONDS_IN_MINUTE - 1] = 0
+            #new minute has passed, so reset the seconds array from last_update_time until the end of the dataframe 
             for i in range ((self._last_update_time % SECONDS_IN_MINUTE) + 1, SECONDS_IN_MINUTE): 
                 self._seconds_data[i] = 0   #set the subsequent seconds to 0, since nothing was received
             self._convert_to_minutes(update_time)
             if (update_time // SECONDS_IN_MINUTE - self._last_update_time // SECONDS_IN_MINUTE > 1 ) \
                 or (update_time % SECONDS_IN_MINUTE >= self._last_update_time % SECONDS_IN_MINUTE) : 
-                # self._seconds_data[0: (self._last_update_time % SECONDS_IN_MINUTE)] = 0
+                # if more than a minute has passed, reset everything
                 for i in range (0, (self._last_update_time % SECONDS_IN_MINUTE) + 1) : # more than a min has passed, reset everything
                     self._seconds_data[i] = 0
             else :
-                # self._seconds_data[0: (update_time % SECONDS_IN_MINUTE)] = 0
+                # reset until update_time
                 for i in range(0, (update_time % SECONDS_IN_MINUTE) + 1) :
                     self._seconds_data[i] = 0
         else:
-            #nulstil indtil update_time
-            # self._seconds_data[(self._last_update_time + 1) % SECONDS_IN_MINUTE: (update_time % SECONDS_IN_MINUTE)] = 0
+            # reset until update_time
             for i in range((self._last_update_time + 1) % SECONDS_IN_MINUTE, (update_time % SECONDS_IN_MINUTE) + 1) :
                 self._seconds_data[i] = 0
 
@@ -69,11 +67,13 @@ class VisualizerState:
             self._events_pr_type_in_state[visualizer_struct.event_type] = 0
         with self.__lock:
             self._events_pr_type_in_state[visualizer_struct.event_type] += 1
-        if self._last_update_time // SECONDS_IN_MINUTE > int(float(visualizer_struct.event_time)) // SECONDS_IN_MINUTE:
+        if self._last_update_time // SECONDS_IN_MINUTE > \
+            int(float(visualizer_struct.event_time)) // SECONDS_IN_MINUTE:
             self._back_dated_event(visualizer_struct)
         else:
             with self.__lock:
-                self._seconds_data.loc[visualizer_struct.event_type, (int(float(visualizer_struct.event_time)) % SECONDS_IN_MINUTE)] += 1
+                self._seconds_data.loc[visualizer_struct.event_type, 
+                                       (int(float(visualizer_struct.event_time)) % SECONDS_IN_MINUTE)] += 1
 
 
     #Create DataFrame if it is the first event of that type
@@ -96,14 +96,11 @@ class VisualizerState:
             popped_visualizer_struct = self._queue.pop(visualizer_struct.event_id) # remove struct from queue dictionary
             self._update_average_time(popped_visualizer_struct, visualizer_struct)
             self._events_pr_type_in_state[popped_visualizer_struct.event_type] -= 1
-            # except KeyError:
-            #     self._debug(visualizer_struct)
-            #     print("dequeue error")
-                # Defensive vs code by contract, if the key does not exist. So far defensive. Could return a debug message here.
         
 
     ### update average time for event_type
-    def _update_average_time(self, popped_visualizer_struct : VISUALIZER_STRUCT, received_visualizer_struct:VISUALIZER_STRUCT) -> None:
+    def _update_average_time(self, popped_visualizer_struct : VISUALIZER_STRUCT, 
+                             received_visualizer_struct:VISUALIZER_STRUCT) -> None:
         
         old_n , _ = self._average_state_time[popped_visualizer_struct.event_type]
         _ , old_average = self._average_state_time[popped_visualizer_struct.event_type]
@@ -118,7 +115,8 @@ class VisualizerState:
     def get_queue_data(self):
         return self._queue
     
-    def get_average_time(self, event_types : list[VISUALIZER_STRUCT.event_type]) -> dict[VISUALIZER_STRUCT.event_type, (int,float)] : 
+    def get_average_time(self, event_types : list[VISUALIZER_STRUCT.event_type]) -> \
+                                    dict[VISUALIZER_STRUCT.event_type, (int,float)] : 
         result = {}
         if not event_types:
             result = self._average_state_time
@@ -131,7 +129,8 @@ class VisualizerState:
                     continue
         return result
     
-    def get_events_in_state_by_type(self) -> dict[VISUALIZER_STRUCT.event_type, (int,float)] : 
+    def get_events_in_state_by_type(self) -> dict[VISUALIZER_STRUCT.event_type, int] : 
+
         # if not event_types:
         return self._events_pr_type_in_state  
 
@@ -175,7 +174,8 @@ class VisualizerState:
         for index, row in self._seconds_data.iterrows():
             self._minutes_data.loc[index, time_now_time_part] = sum(row.to_list()[:timestamp%SECONDS_IN_MINUTE])
         for index, row in self._minutes_data.iterrows() :
-            self._hours_data.loc[index, time_now_time_part] = sum(row.to_list()[:(timestamp // SECONDS_IN_MINUTE) % MINUTES_IN_HOUR])
+            self._hours_data.loc[index, time_now_time_part] = \
+                sum(row.to_list()[:(timestamp // SECONDS_IN_MINUTE) % MINUTES_IN_HOUR])
         if event_types:
             return dataframe_sorted.loc[event_types]
         else:
@@ -267,13 +267,18 @@ class VisualizerState:
             pass #Add to day array and potentially to hours array.
         if event_time // SECONDS_IN_HOUR - update_time // SECONDS_IN_HOUR < 0 :  
             with self.__lock:
-                self._hours_data.loc[visualizer_struct.event_type, ((int(float(visualizer_struct.event_time)) // SECONDS_IN_HOUR) % HOURS_IN_DAY)] += 1
+                self._hours_data.loc[visualizer_struct.event_type, 
+                            ((int(float(visualizer_struct.event_time)) // SECONDS_IN_HOUR) % HOURS_IN_DAY)] += 1
                 if update_time - event_time <= SECONDS_IN_MINUTE:
-                    self._seconds_data.loc[visualizer_struct.event_type, (int(float(visualizer_struct.event_time)) % SECONDS_IN_MINUTE)] += 1
+                    self._seconds_data.loc[visualizer_struct.event_type, 
+                            (int(float(visualizer_struct.event_time)) % SECONDS_IN_MINUTE)] += 1
                 if (update_time - event_time) <= SECONDS_IN_HOUR:
-                    self._minutes_data.loc[visualizer_struct.event_type, ((int(float(visualizer_struct.event_time))// SECONDS_IN_MINUTE) % MINUTES_IN_HOUR)] += 1
+                    self._minutes_data.loc[visualizer_struct.event_type, 
+                            ((int(float(visualizer_struct.event_time))// SECONDS_IN_MINUTE) % MINUTES_IN_HOUR)] += 1
         else:
             with self.__lock:
-                self._minutes_data.loc[visualizer_struct.event_type, ((int(float(visualizer_struct.event_time)) // SECONDS_IN_MINUTE) % MINUTES_IN_HOUR)] += 1
+                self._minutes_data.loc[visualizer_struct.event_type, 
+                            ((int(float(visualizer_struct.event_time)) // SECONDS_IN_MINUTE) % MINUTES_IN_HOUR)] += 1
                 if update_time - event_time <= SECONDS_IN_MINUTE:
-                    self._seconds_data.loc[visualizer_struct.event_type, (int(float(visualizer_struct.event_time)) % SECONDS_IN_MINUTE)] += 1
+                    self._seconds_data.loc[visualizer_struct.event_type, 
+                            (int(float(visualizer_struct.event_time)) % SECONDS_IN_MINUTE)] += 1

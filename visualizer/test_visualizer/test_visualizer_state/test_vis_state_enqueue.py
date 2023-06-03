@@ -136,7 +136,7 @@ class EventQueueDataTest(unittest.TestCase):
 
     # @patch('time.sleep', return_value=[int(time.time()- 5),int(time.time())])
     @patch('time.time', return_value=int(1000000))
-    def testBackDatedEventIsAddedToCorrectMinutesDF(self, mock_time):
+    def testBackDatedEventIsAddedToCorrectMinutesDFSpot(self, mock_time):
         visualizer_state = VisualizerState("testState")
         start_time = mock_time.return_value
         visualizer_state._last_update_time = start_time
@@ -153,7 +153,7 @@ class EventQueueDataTest(unittest.TestCase):
         # self.assertAlmostEqual(visualizer_state._hours_data.loc[vs.event_type][(start_time // SECONDS_IN_HOUR) % HOURS_IN_DAY], 0)
 
     @patch('time.time', return_value=int(1000000))
-    def testBackDatedEventIsAddedToCorrectHoursDF(self, mock_time):
+    def testBackDatedEventIsAddedToCorrectHoursDFSpot(self, mock_time):
         visualizer_state = VisualizerState("testState")
         start_time = mock_time.return_value
         visualizer_state._last_update_time = start_time
@@ -168,3 +168,35 @@ class EventQueueDataTest(unittest.TestCase):
         self.assertAlmostEqual(visualizer_state._seconds_data.loc[vs.event_type].sum(),0)
         self.assertAlmostEqual(visualizer_state._minutes_data.loc[vs.event_type].sum(), 0)
         self.assertAlmostEqual(visualizer_state._hours_data.loc[vs.event_type][(start_time // SECONDS_IN_HOUR) % HOURS_IN_DAY], 1)
+
+    def testBackDatedEventIsAddedToCorrectDaysDFSpot(self):
+        pass #not going to be implemented, but test should be created before starting in the future.
+
+    def testCheckIfEventTypeExistsCreatesEventsInDFIfTheyDontExist(self):
+        # time1 = time.time()
+        # eventId = "idnr1"
+        test_event_type = "event1"
+        visualizer_state = VisualizerState("testState")
+        
+        # initial_averagetime = (0,2.0)
+        # visualizer_state._average_state_time[test_event_type] = initial_averagetime
+        
+        self.assertNotIn(test_event_type,visualizer_state._seconds_data.index)
+        self.assertNotIn(test_event_type,visualizer_state._minutes_data.index)
+        self.assertNotIn(test_event_type,visualizer_state._hours_data.index)
+        self.assertNotIn(test_event_type,visualizer_state._average_state_time)
+
+        visualizer_state._check_if_event_type_exists(test_event_type)
+
+        self.assertIn(test_event_type,visualizer_state._seconds_data.index)
+        self.assertIn(test_event_type,visualizer_state._minutes_data.index) 
+        self.assertIn(test_event_type,visualizer_state._hours_data.index)
+        self.assertIn(test_event_type,visualizer_state._average_state_time)
+
+
+    ### Blackbox testing
+    def testUpdateAverageTimeMultipleEvents(self):
+        pass
+
+    
+    
