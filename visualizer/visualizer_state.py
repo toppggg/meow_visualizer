@@ -135,7 +135,7 @@ class VisualizerState:
         # if not event_types:
         return self._events_pr_type_in_state  
 
-    def get_minutes_data(self, event_types : list[VISUALIZER_STRUCT.event_type]) -> pd.DataFrame :
+    def get_minutes_data(self, event_types : list[VISUALIZER_STRUCT.event_type]=[]) -> pd.DataFrame :
         timestamp = int(time.time())
         self._update()
         time_now_time_part = (timestamp // SECONDS_IN_MINUTE )% MINUTES_IN_HOUR 
@@ -164,7 +164,7 @@ class VisualizerState:
             return dataframe_sorted
 
 
-    def get_hours_data(self, event_types:list[VISUALIZER_STRUCT.event_type]) -> pd.DataFrame :
+    def get_hours_data(self, event_types:list[VISUALIZER_STRUCT.event_type]=[]) -> pd.DataFrame :
         timestamp = int(time.time())
         self._update()
         time_now_time_part = (timestamp // SECONDS_IN_HOUR )% HOURS_IN_DAY 
