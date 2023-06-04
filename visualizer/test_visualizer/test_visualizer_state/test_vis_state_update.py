@@ -30,14 +30,10 @@ class EventQueueDataTest(unittest.TestCase):
         for i in range((start_time+1) % SECONDS_IN_MINUTE, (event_time % SECONDS_IN_MINUTE)):
             self.assertEqual(visualizer_state._seconds_data.loc[vs.event_type, i], 0)
 
-        if (event_time) % SECONDS_IN_MINUTE < (start_time + 1) % SECONDS_IN_MINUTE:
-            for i in range((event_time+1) % SECONDS_IN_MINUTE, (start_time + 1) % SECONDS_IN_MINUTE):
-                self.assertEqual(visualizer_state._seconds_data.loc[vs.event_type,i], 5)
-        else:
-            for i in range((event_time+1) % SECONDS_IN_MINUTE, SECONDS_IN_MINUTE):
-                self.assertEqual(visualizer_state._seconds_data.loc[vs.event_type,i], 5)
-            for i in range(0, (start_time + 1) % SECONDS_IN_MINUTE):
-                self.assertEqual(visualizer_state._seconds_data.loc[vs.event_type,i], 5)
+        for i in range((event_time+1) % SECONDS_IN_MINUTE, SECONDS_IN_MINUTE):
+            self.assertEqual(visualizer_state._seconds_data.loc[vs.event_type,i], 5)
+        for i in range(0, (start_time + 1) % SECONDS_IN_MINUTE):
+            self.assertEqual(visualizer_state._seconds_data.loc[vs.event_type,i], 5)
     
     
     @patch('time.time', return_value=65)
@@ -56,17 +52,14 @@ class EventQueueDataTest(unittest.TestCase):
 
         visualizer_state._update()
 
-        for i in range((start_time+1) % SECONDS_IN_MINUTE, (event_time % SECONDS_IN_MINUTE)):
+        for i in range((start_time+1 % SECONDS_IN_MINUTE), SECONDS_IN_MINUTE):
             self.assertEqual(visualizer_state._seconds_data.loc[vs.event_type, i], 0)
 
-        if (event_time) % SECONDS_IN_MINUTE < (start_time + 1) % SECONDS_IN_MINUTE:
-            for i in range((event_time+1) % SECONDS_IN_MINUTE, (start_time + 1) % SECONDS_IN_MINUTE):
-                self.assertEqual(visualizer_state._seconds_data.loc[vs.event_type,i], 5)
-        else:
-            for i in range((event_time+1) % SECONDS_IN_MINUTE, SECONDS_IN_MINUTE):
-                self.assertEqual(visualizer_state._seconds_data.loc[vs.event_type,i], 5)
-            for i in range(0, (start_time + 1) % SECONDS_IN_MINUTE):
-                self.assertEqual(visualizer_state._seconds_data.loc[vs.event_type,i], 5)
+        for i in range(0, (event_time+1)%SECONDS_IN_MINUTE):
+            self.assertEqual(visualizer_state._seconds_data.loc[vs.event_type, i], 0)    
+
+        for i in range((event_time+1) % SECONDS_IN_MINUTE, (start_time + 1) % SECONDS_IN_MINUTE):
+            self.assertEqual(visualizer_state._seconds_data.loc[vs.event_type,i], 5)
 
     def testUpdateResetsSecondsToZero3(self):
         visualizer_state = VisualizerState("testState")

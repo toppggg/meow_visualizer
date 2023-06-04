@@ -460,7 +460,6 @@ class EventQueueDataTest(unittest.TestCase):
         self.assertCountEqual(vs2_array, returnval.loc[vs2.event_type])
         self.assertCountEqual(vs3_array, returnval.loc[vs3.event_type])
 
-
     ### test if getting a dataframe ordered by timestamp returns the correct dataframe.
     def testAuxReturnDFOrderedByTimeStamp(self):
         # # Test DataFrame as created in VisualizerState
@@ -481,7 +480,6 @@ class EventQueueDataTest(unittest.TestCase):
         result = visualizer_state._aux_return_df_order_by_timestamp(dataframe = df, timestamp = timestamp)
 
         pd.testing.assert_frame_equal(expected_df, result)
-
 
     def testGetTime(self):
         visualizer_state = VisualizerState("testState")
@@ -555,7 +553,6 @@ class EventQueueDataTest(unittest.TestCase):
             testDict[key] = (0,0.0)
         
         self.assertDictEqual(testDict, initial_average_time)
-
 
     def testGetAverageTime(self):
         visualizer_state = VisualizerState("testState")
