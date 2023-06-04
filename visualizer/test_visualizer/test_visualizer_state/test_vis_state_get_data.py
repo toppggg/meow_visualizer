@@ -16,7 +16,7 @@ class EventQueueDataTest(unittest.TestCase):
 
 
     ###Test that new visualizer state is created with correct name
-    def TestInit(self):
+    def testInit(self):
         visualizer_state = VisualizerState("monitor")
 
         self.assertAlmostEqual(visualizer_state.name, "monitor")

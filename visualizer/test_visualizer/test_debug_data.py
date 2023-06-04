@@ -9,39 +9,39 @@ class DebugDataTest(unittest.TestCase):
         super().setUp()
 
 
-    def TestInit(self):
-        debug = DebugData
+    def testInit(self):
+        debug = DebugData()
 
-        self.assertIsInstance(debug.debug_messages, list[VISUALIZER_STRUCT])
+        self.assertIsInstance(debug._debug_messages, list)
 
     ### Test if Add_Debug_struct add Visualizer struct to debug messages ###
-    def TestAddDebugStruct(self) : 
-        debug = DebugData
+    def testAddDebugStruct(self) : 
+        debug = DebugData()
         vs = VISUALIZER_STRUCT(debug_message="Useful Debug message")
 
-        self.assertNotIn(vs, debug.debug_messages)
+        self.assertNotIn(vs, debug._debug_messages)
 
         debug.add_debug_struct(vs)
 
-        self.assertIn(vs, debug.debug_messages)
+        self.assertIn(vs, debug._debug_messages)
     
     ### Test if get_debug_messages returns a list of structs  ###
-    def TestGetDebugMessage (self) : 
+    def testGetDebugMessage(self) : 
         
-        debug = DebugData
+        debug = DebugData()
         vs = VISUALIZER_STRUCT(debug_message="Useful Debug message")
 
-        debug.debug_messages.insert(vs)
+        debug._debug_messages= debug._debug_messages + [vs]
 
-        self.assertIn(vs, debug.debug_messages)
+        self.assertIn(vs, debug._debug_messages)
 
         message = debug.get_debug_messages()
 
         self.assertIn(vs , message)    
 
     ### Test if get_debug_messages returns an empty list if none exist ###
-    def TestGetDebugMessage (self) : 
+    def testGetDebugMessageEmpty(self) : 
         
-        debug = DebugData
+        debug = DebugData()
         message = debug.get_debug_messages()
         self.assertEqual([] , message)

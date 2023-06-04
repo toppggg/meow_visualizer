@@ -32,6 +32,7 @@ class VisualizerState:
 
     def _update(self) -> None :
         update_time = int(time.time())
+
         if update_time - self._last_update_time > 0 :
             self._update_seconds_array(update_time)
 
