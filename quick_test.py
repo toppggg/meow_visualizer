@@ -16,9 +16,6 @@ from visualizer.vars import SECONDS_IN_MINUTE, MINUTES_IN_HOUR, HOURS_IN_DAY,\
 
 visualizer = Visualizer("end")
 
-
-
-
 time1 = int(time.time())-2
 
 toState1 = "Monitor"
