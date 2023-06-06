@@ -554,6 +554,9 @@ class EventQueueDataTest(unittest.TestCase):
         
         self.assertDictEqual(testDict, initial_average_time)
 
+
+
+    ### Blackbox testing multiple events enqueued and dequeued, resulting in a correct average time.
     def testGetAverageTime(self):
         visualizer_state = VisualizerState("testState")
         tt = time.time()

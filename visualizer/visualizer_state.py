@@ -189,11 +189,11 @@ class VisualizerState:
 
     def get_years_data(self, event_types:list[VISUALIZER_STRUCT.event_type]) -> pd.DataFrame : 
         pass
+
     def _convert_to_minutes(self, input_update_time) -> None :
         update_time = input_update_time // SECONDS_IN_MINUTE
         last_update_time = self._last_update_time // SECONDS_IN_MINUTE
         ARRAY_SIZE = MINUTES_IN_HOUR
-        
         ### this may not work, there are not test for this yet.
         for index, row in self._seconds_data.iterrows():
             self._minutes_data.loc[index, last_update_time % MINUTES_IN_HOUR] = row.sum()
@@ -205,10 +205,10 @@ class VisualizerState:
             self._convert_to_hour(input_update_time)
             if (update_time // ARRAY_SIZE - last_update_time // ARRAY_SIZE > 1 ) or \
                 (update_time % ARRAY_SIZE >= last_update_time % MINUTES_IN_HOUR) : 
-                for i in range (0, (last_update_time % ARRAY_SIZE) + 1) : # more than a min has passed, reset everything
+                for i in range (0, (last_update_time % ARRAY_SIZE) + 1) : # more than a hour has passed, reset everything
                     self._minutes_data[i] = 0
             else :
-                for i in range(0, (update_time % ARRAY_SIZE) + 1) :
+                for i in range(0, (update_time % ARRAY_SIZE) + 1) : # less than a hour has passed, reset only until the update_time
                     self._minutes_data[i] = 0
         else:
             #nulstil indtil update_time
@@ -231,15 +231,16 @@ class VisualizerState:
             self._convert_to_day(input_update_time)
             if (update_time // ARRAY_SIZE - last_update_time // ARRAY_SIZE > 1 ) or \
                 (update_time % ARRAY_SIZE >= last_update_time % HOURS_IN_DAY) : 
-                for i in range (0, (last_update_time % ARRAY_SIZE) + 1) : # more than a min has passed, reset everything
+                for i in range (0, (last_update_time % ARRAY_SIZE) + 1) : # more than a day has passed, reset everything
                     self._hours_data[i] = 0
             else :
-                for i in range(0, (update_time % ARRAY_SIZE) + 1) :
+                for i in range(0, (update_time % ARRAY_SIZE) + 1) : # less than a day has passed, reset only until the update_time
                     self._hours_data[i] = 0
         else:
             #nulstil indtil update_time
             for i in range(last_update_time+1, (update_time % ARRAY_SIZE) + 1) :
                     self._hours_data[i] = 0
+
     def _convert_to_day(self, input_update_time) -> None:
         pass
         #identical to the _convert_to_hours function just with days in a month. obs, if it should be designed with months of different array length. 
