@@ -16,10 +16,10 @@ gui = GUI(visualizer, "end")
 def test (channel,name) :
     # set these params to you 
     endState = "end"
-    number_of_events_pr_sec = 2000 # total number, must be equal or higher than number of states * number of event type
-    number_of_states = 1 # end state included
-    number_of_event_types = 1
-    number_of_runs = 60*5
+    number_of_events_pr_sec = 12500 # total number, must be equal or higher than number of states * number of event type
+    number_of_states = 500 # end state included
+    number_of_event_types = 25
+    number_of_runs = 1
 
     state_names = [str(i) for i in range(0,number_of_states-1)] + [endState]
     

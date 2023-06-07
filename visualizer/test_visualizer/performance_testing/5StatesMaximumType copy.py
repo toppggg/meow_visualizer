@@ -17,8 +17,8 @@ def test (channel,name) :
     # set these params to you 
     endState = "end"
     number_of_events_pr_sec = 2000 # total number, must be equal or higher than number of states * number of event type
-    number_of_states = 1 # end state included
-    number_of_event_types = 1
+    number_of_states = 5 # end state included
+    number_of_event_types = 75
     number_of_runs = 60*5
 
     state_names = [str(i) for i in range(0,number_of_states-1)] + [endState]

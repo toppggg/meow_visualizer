@@ -74,7 +74,7 @@ def end() :
         if random.randint(0,3) < 2 :
             for i in range(0,40) :
                 time2 = str(time.time())
-                vs2 = VISUALIZER_STRUCT("rule" + str(i), "i" + str(i) + "j" + str(j), toState2, toState3, time0, time2, "", "OptionalInfo")
+                vs2 = VISUALIZER_STRUCT("rule", "i" + str(i) + "j" + str(j), toState2, toState3, time0, time2, "", "OptionalInfo")
                 visualizer.receive_channel.put(vs2)
             if j < 100:
                 time.sleep(0.3)
