@@ -12,13 +12,12 @@ from visualizer.i_visualizer_receive_data import IVisualizerReceiveData
 from visualizer.i_visualizer_query_data import IVisualizerQueryData
 from visualizer.visualizer_struct import VISUALIZER_STRUCT
 
-
 class Visualizer(IVisualizerReceiveData, IVisualizerQueryData) :
     _visualizer_states : dict[str, VisualizerState]
     _debug_data : DebugData
     _end_state : VisualizerState
     __shutdown : bool = False
-    __receiver : threading.Thread
+    _receiver : threading.Thread
     visualizer_update_time : int #time since epoch
 
     def __init__(self, endState  : str) ->None:
@@ -29,13 +28,13 @@ class Visualizer(IVisualizerReceiveData, IVisualizerQueryData) :
         self._visualizer_states[endState] = self._end_state
         self.visualizer_update_time = int(time.time())
 
-        self.__receiver = threading.Thread(target=self.__receiver_worker)
-        self.__receiver.start()
+        self._receiver = threading.Thread(target=self.__receiver_worker)
+        self._receiver.start()
 
     def __receiver_worker(self) : 
         while not self.__shutdown or not self.receive_channel.empty():
             self._update()
-            time.sleep(0.5)
+            time.sleep(0.1)
     
     ### Add event to visualizer_state, if the state does not exist, add the event to debug_struct ###
     def _add_event(self, visualizer_struct: VISUALIZER_STRUCT) -> None :

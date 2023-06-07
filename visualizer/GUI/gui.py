@@ -126,7 +126,6 @@ class GUI () :
         
         def state_all_data():
             events_in_state = self._visualizer.get_events_in_state(self._state)
-            
             result = []
             for event in events_in_state :
                 result += [str(event)]
@@ -149,8 +148,7 @@ class GUI () :
                         value=self._state
                     )
                 ]),
-                html.Div(id='text_area_state', style={'whiteSpace': 'pre-line'}, children= [html.Div(i) for i in result]),
-                dcc.Interval(id = 'interval_state_all_data', interval= 5000)
+                html.Div(id='text_area_state', style={'whiteSpace': 'pre-line'}, children= [html.Div(i) for i in result])
             ])
         
         def search_id():
@@ -178,10 +176,9 @@ class GUI () :
         
         @app.callback(
             Output('text_area_state',"children" ),
-            Input('state-data-dropdown', 'value'),
-            Input("interval_state_all_data", "n_intervals")
+            Input('state-data-dropdown', 'value')
         )
-        def update_events_in_state(value, n_intervals):
+        def update_events_in_state(value):
             self._state = value
             events_in_state = self._visualizer.get_events_in_state(self._state)
             
@@ -299,12 +296,12 @@ class GUI () :
 
         @app.callback(
             Output('state-data-dropdown', 'options'),
-            Input('state-data-dropdown', 'value'),
-            Input("interval_state_all_data", "n_intervals")
+            Output('textarea', 'options'),
+            Input('state-data-dropdown', 'value')
         )
-        def update_dropdown(state_value, n_intervals):
+        def update_dropdown(state_value):
             # this will change the value of self._state when the dropdown selection changes
             self._state = state_value
             self._all_states = self._visualizer.get_all_states()
-            return  [{'label': i, 'value': i} for i in self._all_states]
+            return  [{'label': i, 'value': i} for i in self._all_states], [{'label': i, 'value': i} for i in self._gui_states]
         
