@@ -41,11 +41,11 @@ class Visualizer(IVisualizerReceiveData, IVisualizerQueryData) :
     def _add_event(self, visualizer_struct: VISUALIZER_STRUCT) -> None :
         if self._check_valid_transition(visualizer_struct):
     
-            if visualizer_struct.current_state not in self._visualizer_states :
-                self._visualizer_states[visualizer_struct.current_state] = VisualizerState(visualizer_struct.current_state)
-
-            visualizer_ToState = self._visualizer_states[visualizer_struct.current_state]
-            visualizer_ToState.enqueue(visualizer_struct)
+            if visualizer_struct.current_state != "":
+                if visualizer_struct.current_state not in self._visualizer_states :
+                    self._visualizer_states[visualizer_struct.current_state] = VisualizerState(visualizer_struct.current_state)
+                visualizer_ToState = self._visualizer_states[visualizer_struct.current_state]
+                visualizer_ToState.enqueue(visualizer_struct)
 
             if (visualizer_struct.previous_state != "") : #Check if previous state is not set.
                 try: # Check if previous state exists
