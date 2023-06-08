@@ -232,7 +232,6 @@ class GUI () :
                 fig = px.bar(df, labels={
                     'variable' : 'Event Type ( Finished ; Average Time)' 
                 })
-                
                 return fig
 
         @app.callback(
