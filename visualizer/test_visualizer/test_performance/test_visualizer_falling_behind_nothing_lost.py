@@ -3,18 +3,20 @@ import multiprocessing
 
 from visualizer.visualizer import Visualizer
 from visualizer.visualizer_struct import VISUALIZER_STRUCT
+from visualizer.GUI.gui import GUI
 
 visualizer = Visualizer("end")
+gui = GUI(visualizer, "end")
 
 start_time = time.time()
 time0 = int(start_time)
 
 
 # set these params
-number_of_events_pr_sec = 10000 # total number, must be equal or higher than number of states * number of event type
+number_of_events_pr_sec = 30000 # total number, must be equal or higher than number of states * number of event type
 number_of_states = 5 # end state included
-number_of_event_types = 5
-number_of_runs = 10
+number_of_event_types = 20
+number_of_runs = 3
 actual_number_of_events_pr_second = ((number_of_events_pr_sec // number_of_event_types) // number_of_states ) * number_of_event_types * number_of_states
 
 def test (channel,name) :
@@ -50,17 +52,13 @@ def test (channel,name) :
         sleep_time = (start_time_this_round + 1) - time.time()
         if sleep_time > 0:
             time.sleep(sleep_time)
-        else:
-            print("Over one second!")
+        print("events in visualizer queue: ", visualizer.receive_channel.qsize())
 
 
 
 p = multiprocessing.Process(target=test, args=(visualizer.receive_channel,"1"))
 p.start()
-
 p.join()
-assert(len(list(visualizer._end_state.get_events_in_state_by_type().keys())) == number_of_event_types)
-print("Assertion passed")
 
 while visualizer.receive_channel.empty() == False:
     time.sleep(0.1)

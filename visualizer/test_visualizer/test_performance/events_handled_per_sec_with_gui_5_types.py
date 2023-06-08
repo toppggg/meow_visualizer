@@ -73,7 +73,7 @@ p.start()
 
 
 p.join()
-assert(len(list(visualizer._end_state.get_events_in_state_by_type().keys())) == 750)
+assert(len(list(visualizer._end_state.get_events_in_state_by_type().keys())) == number_of_event_types)
 print("Assertion passed")
 
 while visualizer.receive_channel.empty() == False:
