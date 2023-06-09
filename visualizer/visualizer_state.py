@@ -138,13 +138,13 @@ class VisualizerState:
     def get_minutes_data(self, event_types : list[VISUALIZER_STRUCT.event_type]=[]) -> pd.DataFrame :
         timestamp = int(time.time())
         self._update()
-        time_now_time_part = (timestamp // SECONDS_IN_MINUTE )% MINUTES_IN_HOUR 
+        time_now_time_part = (timestamp // SECONDS_IN_MINUTE ) % MINUTES_IN_HOUR 
         dataframe_sorted = self._aux_return_df_order_by_timestamp(time_now_time_part, self._minutes_data)
 
         # Sets current minute equal to the sum of seconds array [0:time_stamp]
         # Will break if we change seconds array. 
         for index, row in self._seconds_data.iterrows():
-            self._minutes_data.loc[index, time_now_time_part] = sum(row.to_list()[:timestamp%SECONDS_IN_MINUTE])
+            self._minutes_data.loc[index, time_now_time_part] = sum(row.to_list()[:timestamp % SECONDS_IN_MINUTE])
 
         if event_types:
             return dataframe_sorted.loc[event_types]
@@ -167,13 +167,13 @@ class VisualizerState:
     def get_hours_data(self, event_types:list[VISUALIZER_STRUCT.event_type]=[]) -> pd.DataFrame :
         timestamp = int(time.time())
         self._update()
-        time_now_time_part = (timestamp // SECONDS_IN_HOUR )% HOURS_IN_DAY 
+        time_now_time_part = (timestamp // SECONDS_IN_HOUR ) % HOURS_IN_DAY 
         dataframe_sorted = self._aux_return_df_order_by_timestamp(time_now_time_part, self._hours_data)
 
         # Sets current minute equal to the sum of seconds array [0:time_stamp]
         # will do equivalent part for the hours array
         for index, row in self._seconds_data.iterrows():
-            self._minutes_data.loc[index, time_now_time_part] = sum(row.to_list()[:timestamp%SECONDS_IN_MINUTE])
+            self._minutes_data.loc[index, (timestamp // SECONDS_IN_MINUTE) % MINUTES_IN_HOUR] = sum(row.to_list()[:timestamp % SECONDS_IN_MINUTE])
         for index, row in self._minutes_data.iterrows() :
             self._hours_data.loc[index, time_now_time_part] = \
                 sum(row.to_list()[:(timestamp // SECONDS_IN_MINUTE) % MINUTES_IN_HOUR])
