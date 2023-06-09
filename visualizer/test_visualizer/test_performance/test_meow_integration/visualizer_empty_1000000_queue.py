@@ -10,6 +10,8 @@ from visualizer.i_visualizer_receive_data import IVisualizerReceiveData
 
 channel = multiprocessing.Queue()
 
+# visualizer_info.receive_channel = channel
+
 visualizer_info = IVisualizerReceiveData()
 visualizer_info.receive_channel = channel
 
@@ -27,14 +29,14 @@ for i in range(0,runs):
     start_time = time.time()
     # print("start in second: ", start_time % 60)
     for j in range(0, count):
-        # event_path = event_message + str(i)
-        job_path = job_path_name + str(j)
-        meow_adapter.from_handler_path(job_path_name)
-
+        event_path = event_message
+        # job_path = job_path_name 
+        meow_adapter.from_monitor_message(event_path)
+        # print(channel.get())
     end_time = time.time()
     work_time = end_time - start_time
     total_work_time += work_time
-    print("Round ", i, " done")
+
     # print("done in second: ", end_time % 60)
     # print("putting 100.000 events in queue took: ", end_time - start_time, " seconds")
     # print("Queue size =",channel.qsize())
@@ -48,8 +50,11 @@ print("Timing how long 1.000.000 jobs take to flush from queue")
 print("Starting to clear queue, might take a minute")
 start_time = time.time()
 
+visualizer = Visualizer("end")
+visualizer.receive_channel = channel
+
 while channel.qsize() > 0:
-    a = channel.get()
+    time.sleep(0.1)
 
 print("done clearing queue")
 end_time = time.time()
@@ -57,14 +62,20 @@ print("clearing queue took: ", end_time - start_time, " seconds")
 
 # time.sleep(1)
 
-channel.close()
+# channel.close()
 print("queue size = ", channel.qsize())
 # channel.terminate()
+assert(len(visualizer._debug_data._debug_messages) == 1000000)
+
+# assert(len(visualizer._visualizer_states["from_handler"]._queue.keys()) == 1000000)
+print("debug messages in the visualizer: ", len(visualizer._debug_data._debug_messages))
+
+visualizer.shutdown()
 print("closed")
 # raise SystemExit
 # exit()
 
-channel.join_thread()
+
 
 # for i in range(1, 3):
 #     event_path = event_path_name + str(i)
