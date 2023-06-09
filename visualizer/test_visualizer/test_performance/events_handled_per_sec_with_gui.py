@@ -1,22 +1,15 @@
 import time
-import threading
 import multiprocessing
 
 from visualizer.visualizer import Visualizer
 from visualizer.visualizer_struct import VISUALIZER_STRUCT
-from visualizer.visualizer_state import VisualizerState
 from visualizer.GUI.gui import GUI
 
-
-import warnings
-warnings.filterwarnings('ignore', message='DataFrame is highly fragmented')
-
 visualizer = Visualizer("end")
-
+gui = GUI(visualizer, "end")
 start_time = time.time()
 time0 = int(start_time)
 
-gui = GUI(visualizer, "end")
 
 # set these params
 number_of_events_pr_sec = 10000 # total number, must be equal or higher than number of states * number of event type
@@ -66,12 +59,6 @@ def test (channel,name) :
 p = multiprocessing.Process(target=test, args=(visualizer.receive_channel,"1"))
 p.start()
 
-# print("visualizer's reciver Thread: ", visualizer._receiver.native_id)
-# print("GUi plot thread : ", gui._plot_thread.native_id)
-# print("Main  PID: ", threading.get_native_id())
-# print("Test thread  PID: ", p.pid)
-
-
 p.join()
 assert(len(list(visualizer._end_state.get_events_in_state_by_type().keys())) == 750)
 print("Correct number of events procesed by the end state")
@@ -81,6 +68,5 @@ while visualizer.receive_channel.empty() == False:
 
 end_time = time.time()
 print("All ", actual_number_of_events_pr_second * number_of_runs , "events are processed by the visualizer in ", end_time - start_time , " seconds")
-
 
 
