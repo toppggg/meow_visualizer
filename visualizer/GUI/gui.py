@@ -230,7 +230,8 @@ class GUI () :
             if df is not None :
                 
                 fig = px.bar(df, labels={
-                    'variable' : 'Event Type ( Finished ; Average Time)' 
+                    'variable' : 'Event Type', 
+                    'value' : 'events'
                 })
                 return fig
 
