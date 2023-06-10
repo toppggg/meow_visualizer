@@ -6,6 +6,7 @@ from visualizer.visualizer_struct import VISUALIZER_STRUCT
 from visualizer.GUI.gui import GUI
 
 visualizer = Visualizer("end")
+time.sleep(1)
 gui = GUI(visualizer, "end")
 start_time = time.time()
 time0 = int(start_time)
