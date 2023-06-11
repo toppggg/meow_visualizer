@@ -5,6 +5,9 @@ from visualizer.visualizer import Visualizer
 from visualizer.visualizer_struct import VISUALIZER_STRUCT
 from visualizer.GUI.gui import GUI
 
+import warnings
+warnings.filterwarnings('ignore', message='DataFrame is highly fragmented')
+
 visualizer = Visualizer("end")
 gui = GUI(visualizer, "end")
 start_time = time.time()
