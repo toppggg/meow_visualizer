@@ -137,7 +137,7 @@ class Visualizer(IVisualizerReceiveData, IVisualizerQueryData) :
         return visualizer_state.get_events_in_state_by_type()
     
 
-    def get_event_average_live_time(self, event_types :list[VISUALIZER_STRUCT.event_type] = []) \
+    def get_event_average_life_time(self, event_types :list[VISUALIZER_STRUCT.event_type] = []) \
             ->  dict[VISUALIZER_STRUCT.event_type, (int,float)]:
         result : dict[VISUALIZER_STRUCT.event_type, (int,float)] = self._end_state.get_average_time(event_types)
         for event_type in result :

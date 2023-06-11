@@ -9,6 +9,7 @@ import warnings
 warnings.filterwarnings('ignore', message='DataFrame is highly fragmented')
 
 visualizer = Visualizer("end")
+time.sleep(1)
 gui = GUI(visualizer, "end")
 start_time = time.time()
 time0 = int(start_time)
