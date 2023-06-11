@@ -195,6 +195,6 @@ class Visualizer(IVisualizerReceiveData, IVisualizerQueryData) :
         
     def shutdown(self) -> None :
         self.__shutdown = True
-        self.__receiver.join()
+        self._receiver.join()
         pass
         

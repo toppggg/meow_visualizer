@@ -153,7 +153,7 @@ class EventQueueDataTest(unittest.TestCase):
         # self.assertAlmostEqual(visualizer_state._hours_data.loc[vs.event_type][(start_time // SECONDS_IN_HOUR) % HOURS_IN_DAY], 0)
 
     @patch('time.time', return_value=int(1000000))
-    def testBackDatedEventIsAddedToCorrectHoursDFSpot(self, mock_time):
+    def testBackDatedEventIsAddedToCorrectHoursDFSpot70SecondsBehind(self, mock_time):
         visualizer_state = VisualizerState("testState")
         start_time = mock_time.return_value
         visualizer_state._last_update_time = start_time
@@ -169,8 +169,75 @@ class EventQueueDataTest(unittest.TestCase):
         self.assertAlmostEqual(visualizer_state._minutes_data.loc[vs.event_type].sum(), 0)
         self.assertAlmostEqual(visualizer_state._hours_data.loc[vs.event_type][(start_time // SECONDS_IN_HOUR) % HOURS_IN_DAY], 1)
 
-    def testBackDatedEventIsAddedToCorrectDaysDFSpot(self):
-        pass #not going to be implemented, but test should be created before starting in the future.
+    @patch('time.time', return_value=int(3593))
+    def testBackDatedEventIsAddedToCorrectHoursDFSpot70SecondsBehind(self, mock_time):
+        visualizer_state = VisualizerState("testState")
+        start_time = mock_time.return_value
+        visualizer_state._last_update_time = start_time
+        vs = VISUALIZER_STRUCT("rule1","idnr1", "", "Monitor", start_time, start_time, "random message", "OptionalInfo")
+        visualizer_state._seconds_data.loc[vs.event_type] = [0] * 60
+        visualizer_state._minutes_data.loc[vs.event_type] = [0] * 60
+        visualizer_state._hours_data.loc[vs.event_type] = [0] * 24
+
+        mock_time.return_value = start_time + 70 
+        visualizer_state.enqueue(vs)
+        
+        self.assertAlmostEqual(visualizer_state._seconds_data.loc[vs.event_type].sum(),0)
+        self.assertAlmostEqual(visualizer_state._minutes_data.loc[vs.event_type].sum(), 1)
+        self.assertAlmostEqual(visualizer_state._hours_data.loc[vs.event_type][(start_time // SECONDS_IN_HOUR) % HOURS_IN_DAY], 1)
+
+    @patch('time.time', return_value=int(3593))
+    def testBackDatedEventIsAddedToCorrectHoursDFSpot20SecondsBehind(self, mock_time):
+        visualizer_state = VisualizerState("testState")
+        start_time = mock_time.return_value
+        visualizer_state._last_update_time = start_time
+        vs = VISUALIZER_STRUCT("rule1","idnr1", "", "Monitor", start_time, start_time, "random message", "OptionalInfo")
+        visualizer_state._seconds_data.loc[vs.event_type] = [0] * 60
+        visualizer_state._minutes_data.loc[vs.event_type] = [0] * 60
+        visualizer_state._hours_data.loc[vs.event_type] = [0] * 24
+
+        mock_time.return_value = start_time + 20 
+        visualizer_state.enqueue(vs)
+        
+        self.assertAlmostEqual(visualizer_state._seconds_data.loc[vs.event_type].sum(),1)
+        self.assertAlmostEqual(visualizer_state._minutes_data.loc[vs.event_type].sum(), 1)
+        self.assertAlmostEqual(visualizer_state._hours_data.loc[vs.event_type][(start_time // SECONDS_IN_HOUR) % HOURS_IN_DAY], 1)
+
+
+    @patch('time.time', return_value=int(3593))
+    def testBackDatedEventIsAddedToCorrectHoursDFSpot1DayAnd70SecondsBehind(self, mock_time):
+        visualizer_state = VisualizerState("testState")
+        start_time = mock_time.return_value
+        visualizer_state._last_update_time = start_time
+        vs = VISUALIZER_STRUCT("rule1","idnr1", "", "Monitor", start_time, start_time, "random message", "OptionalInfo")
+        visualizer_state._seconds_data.loc[vs.event_type] = [0] * 60
+        visualizer_state._minutes_data.loc[vs.event_type] = [0] * 60
+        visualizer_state._hours_data.loc[vs.event_type] = [0] * 24
+
+        mock_time.return_value = start_time + SECONDS_IN_DAY + 70 
+        visualizer_state.enqueue(vs)
+        
+        self.assertAlmostEqual(visualizer_state._seconds_data.loc[vs.event_type].sum(),0)
+        self.assertAlmostEqual(visualizer_state._minutes_data.loc[vs.event_type].sum(), 0)
+        self.assertAlmostEqual(visualizer_state._hours_data.loc[vs.event_type][(start_time // SECONDS_IN_HOUR) % HOURS_IN_DAY], 1)
+
+    @patch('time.time', return_value=int(3193))
+    def testBackDatedEventIsAddedToCorrectHoursDFSpot50SecondsBehind(self, mock_time):
+        visualizer_state = VisualizerState("testState")
+        start_time = mock_time.return_value
+        visualizer_state._last_update_time = start_time
+        vs = VISUALIZER_STRUCT("rule1","idnr1", "", "Monitor", start_time, start_time, "random message", "OptionalInfo")
+        visualizer_state._seconds_data.loc[vs.event_type] = [0] * 60
+        visualizer_state._minutes_data.loc[vs.event_type] = [0] * 60
+        visualizer_state._hours_data.loc[vs.event_type] = [0] * 24
+
+        mock_time.return_value = start_time + 50 
+        visualizer_state.enqueue(vs)
+        
+        self.assertAlmostEqual(visualizer_state._seconds_data.loc[vs.event_type].sum(),1)
+        self.assertAlmostEqual(visualizer_state._minutes_data.loc[vs.event_type].sum(), 1)
+        self.assertAlmostEqual(visualizer_state._hours_data.loc[vs.event_type][(start_time // SECONDS_IN_HOUR) % HOURS_IN_DAY], 0)
+
 
     def testCheckIfEventTypeExistsCreatesEventsInDFIfTheyDontExist(self):
         # time1 = time.time()
